@@ -1,8 +1,11 @@
 PACKAGES install-norec
 untangle-gateway
 
-PACKAGES install JESSIE
-e2fsprogs/$release-backports
+PACKAGES install-norec AMD64
+linux-image-4.19.0-6-untangle-amd64-unsigned
+
+PACKAGES install-norec ARM64
+linux-image-4.19.0-6-untangle-arm64-unsigned
 
 PACKAGES install-norec UNTANGLE_AZURE_BYOL
 untangle-hardware-azure-byol
