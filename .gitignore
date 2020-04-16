@@ -11,3 +11,10 @@ __pycache__/
 /image-*.build-fai.json
 /image-*.build.junit.xml
 config_space/class/UNTANGLE.var
+*.log
+*.raw
+*.ovf
+*.ova
+*.qcow2
+*.vmdk
+config_space/config_space
