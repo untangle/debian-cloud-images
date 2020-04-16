@@ -1,0 +1,43 @@
+sudo: required
+
+git:
+  depth: false
+
+services:
+- docker
+
+env:
+  global:
+    - SSH_KEY: /tmp/travis-buildbot.rsa
+      PACKAGE_SERVER_IP: 173.14.28.193
+      REPOSITORY: buster
+      PKGTOOLS_COMMIT: origin/${TRAVIS_BRANCH}
+      UPLOAD: scp
+      PRIVILEGED: true
+  jobs:
+    - ARCHITECTURE: amd64
+
+before_install:
+- docker pull untangleinc/ngfw:${REPOSITORY}-cloud
+- openssl aes-256-cbc -K $encrypted_c3a944c0ebdd_key -iv $encrypted_c3a944c0ebdd_iv -in .travis/buildbot.rsa.enc -out ${SSH_KEY} -d
+- chmod 600 ${SSH_KEY}
+
+jobs:
+  include:
+    - stage: build qcow2
+      script:
+        - docker-compose -f docker-compose.build.yml run pkgtools
+        - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw qcow2/untangle-image qco2/untangle-push"
+
+    - stage: build ova
+      script:
+        - docker-compose -f docker-compose.build.yml run pkgtools
+        - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw ova/untangle-image ova/untangle-push"
+
+notifications:
+  email: false
+  slack:
+    rooms:
+      secure: etYXoWsq2ePvfPjomw7wmsCP6woeJp461dD5Yo5brSdTL0exTTNh+atSnX1MgqbQytsYy4PwQoAQb8jBzn+FPuLjdts/aKIClU4uTt0ZKs4gfAC368Wv//6WjxSjkFjeHtSht/ALcergEwCy3HsIgOai41egzy/YIDVSkgBxUrPaH6zcI0mTwhW6Ss7C91FJtndy8REvhKn5TNLRndXSLMF/EdVeFxPzA5yVM4MCcFbzUlbscs+C8/J3hD2no/38opSwqojBqaPQBFiI5LHCGLJqfWcIhCUA6YTVi12WpYLWlOutX2RpJpVU8N9kvnBpvhuoypgkzLNtJ8CZCwoBRdbUS78EPUmbCRiQxHquCkKjKUemSMrL4FqTrJL/NejQHz1c86aHJvgL/nql+zticD0RueFDVYZsFxvN8KCd/C28lkcE0jaDQUm7z01jDjWgqT/nMyqokI8MFydQGtSoRvp6GMNrJPlQg0XoNZkjHwyhPVTAf77Nyq2aht6tkGVcWQA7SVMAXlT8ZptJ4nvEq5EU0KhrXc/z9XeipmPORGOq+Yn775xlLR64ERBNhrUOvu+yPRkmYKUKkCzYgOQuih+KwPQZe3NGy+XlxXq4Io/+yDgpmophkYm1YsMjbpohw7m+uiNSlLnMFM92Sse+qOy4x1Fkb/D8jbnqaX+7eV4=
+    on_success: change
+    on_failure: always
