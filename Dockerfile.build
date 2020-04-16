@@ -1,0 +1,41 @@
+FROM debian:buster
+
+USER root
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN echo 'APT::Install-Recommends "false";' > /etc/apt/apt.conf.d/no-recommends && \
+    echo 'APT::Install-Suggests "false";' >> /etc/apt/apt.conf.d/no-recommends
+
+RUN apt update -q
+
+RUN apt install -y fai-server
+RUN apt install -y fai-setup-storage
+RUN apt install -y qemu-utils
+RUN apt install -y build-essential
+RUN apt install -y ca-certificates
+RUN apt install -y debsums
+RUN apt install -y dosfstools
+RUN apt install -y fai-server
+RUN apt install -y fai-setup-storage
+RUN apt install -y make
+RUN apt install -y python3
+RUN apt install -y python3-libcloud
+RUN apt install -y python3-marshmallow
+RUN apt install -y python3-pytest
+RUN apt install -y python3-yaml
+RUN apt install -y qemu-utils
+RUN apt install -y udev
+RUN apt install -y procps
+RUN apt install -y sudo
+RUN apt install -y apt-utils
+RUN apt install -y debootstrap
+RUN apt install -y bc
+RUN apt install -y openssh-client
+
+RUN sed -i '1161s%umount%#umount%' /usr/share/debootstrap/functions
+
+ENV SRC=/opt/untangle/build
+RUN mkdir -p ${SRC}
+VOLUME ${SRC}
+
+WORKDIR ${SRC}

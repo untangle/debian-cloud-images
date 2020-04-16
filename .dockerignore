@@ -1,0 +1,6 @@
+tmp-*
+*.log
+*.raw
+*.qcow2
+*.vmdk
+*.ova
