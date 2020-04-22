@@ -77,6 +77,9 @@ $(OVF_FILE): $(OVF_FILE_TPL)
 ova/%-image: $(OVF_FILE) $(VMDK_NAME)
 	tar cvf $(OVA_NAME) $^
 	chmod 644 $(OVA_NAME)
+
+ova/%-push:
+	scp $(OVA_NAME) $(NETBOOT_USER)@$(NETBOOT_HOST):$(IMAGES_DIR)/$(VERSION)/
 	ssh $(NETBOOT_USER)@$(NETBOOT_HOST) "sudo python $(MOUNT_SCRIPT) link $(VERSION) $(TS) $(ARCH) $(REPOSITORY)"
 
 %.vmdk: conf
