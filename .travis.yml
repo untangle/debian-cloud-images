@@ -27,7 +27,7 @@ jobs:
     - stage: build qcow2
       script:
         - docker-compose -f docker-compose.build.yml run pkgtools
-        - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw qcow2/untangle-image qco2/untangle-push"
+        - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw qcow2/untangle-image qcow2/untangle-push"
 
     - stage: build ova
       script:
