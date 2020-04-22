@@ -12,6 +12,9 @@ endif
 ifeq ($(FLAVOR),)
 FLAVOR := untangle
 endif
+ifeq ($(PACKAGE_SERVER_IP),)
+PACKAGE_SERVER_IP := package-server.untangle.int
+endif
 
 ## variables
 ARCH := $(shell dpkg-architecture -qDEB_BUILD_ARCH)
@@ -46,7 +49,7 @@ clean:
 	rm -f $(UNTANGLE_FAI_CONF)
 
 conf: # FAI conf for main class
-	perl -pe 's/\+UNTANGLE_REPOSITORY\+/'$(REPOSITORY)'/ ; s/\+UNTANGLE_RELEASE\+/'$(DISTRIBUTION)'/' $(UNTANGLE_FAI_CONF_TPL) > $(UNTANGLE_FAI_CONF)
+	perl -pe 's/\+UNTANGLE_MIRROR\+/'$(PACKAGE_SERVER_IP)'/ ; s/\+UNTANGLE_REPOSITORY\+/'$(REPOSITORY)'/ ; s/\+UNTANGLE_RELEASE\+/'$(DISTRIBUTION)'/' $(UNTANGLE_FAI_CONF_TPL) > $(UNTANGLE_FAI_CONF)
 
 ## raw
 raw/%-image: conf
