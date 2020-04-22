@@ -29,6 +29,7 @@ VERSION ?= $(shell cat $(PKGTOOLS_DIR)/resources/VERSION)
 ARCH_CAPS := $(shell echo $(ARCH) | tr '[a-z]' '[A-Z]')
 FLAVOR_CAPS := $(shell echo $(FLAVOR) | tr '[a-z]' '[A-Z]')
 TMP_DIR := $(IMGTOOLS_DIR)/tmp-$(REPOSITORY)-$(DISTRIBUTION)-$(ARCH)-$(LICENSE)
+MOUNT_SCRIPT := /data/image-manager/mounts.py
 NETBOOT_HOST := package-server
 NETBOOT_USER := buildbot
 IMAGES_DIR := /data/untangle-images-$(REPOSITORY)
@@ -76,6 +77,7 @@ $(OVF_FILE): $(OVF_FILE_TPL)
 ova/%-image: $(OVF_FILE) $(VMDK_NAME)
 	tar cvf $(OVA_NAME) $^
 	chmod 644 $(OVA_NAME)
+	ssh $(NETBOOT_USER)@$(NETBOOT_HOST) "sudo python $(MOUNT_SCRIPT) link $(VERSION) $(TS) $(ARCH) $(REPOSITORY)"
 
 %.vmdk: conf
 	/usr/sbin/fai-diskimage $(FAI_COMMON_OPTIONS) --class $(FAI_COMMON_CLASSES),UNTANGLE_CLIENT_LOCAL,$(FAI_LAST_CLASSES) --size $(OVA_SIZE)G $@
