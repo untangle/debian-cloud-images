@@ -16,7 +16,8 @@ ifeq ($(PACKAGE_SERVER_IP),)
 PACKAGE_SERVER_IP := package-server.untangle.int
 endif
 
-## env
+## shell variables
+export http_proxy=$(shell perl -pe 's/.*"(.*?)".*/$$1/' 2> /dev/null < /etc/apt/apt.conf.d/01proxy)
 export CLOUD_BUILD_OUTPUT_DIR = .
 export CLOUD_BUILD_NAME = ngfw
 
