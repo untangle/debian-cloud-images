@@ -16,6 +16,10 @@ ifeq ($(PACKAGE_SERVER_IP),)
 PACKAGE_SERVER_IP := package-server.untangle.int
 endif
 
+## env
+export CLOUD_BUILD_OUTPUT_DIR = .
+export CLOUD_BUILD_NAME = ngfw
+
 ## variables
 ARCH := $(shell dpkg-architecture -qDEB_BUILD_ARCH)
 TS := $(shell date +"%Y-%m-%dT%H%M%S")
