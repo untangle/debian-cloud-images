@@ -6,6 +6,13 @@ import json
 import logging
 import os
 import subprocess
+import sys
+
+sys.path.insert(0, '../../src')
+
+print(sys.path)
+print(os.getcwd())
+print(subprocess.getoutput('tree -d -n {}'.format(os.getcwd())))
 
 from debian_cloud_images.utils import argparse_ext
 from debian_cloud_images.api.cdo.build import Build
