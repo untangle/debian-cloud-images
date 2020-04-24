@@ -1,8 +1,12 @@
 #!/bin/sh
 set -eux
+
+export PYTHONPATH=src
+
 exec pytest-3 \
   -p debian_cloud_images.test.pytest.mount \
   -vrxXs \
+  -k'not test_passwd_name and not test_passwd_shell and not test_passwd_uid and not test_var_log' \
   --color=yes \
   --junit-xml "${CLOUD_BUILD_OUTPUT_DIR}/${CLOUD_BUILD_NAME}.build.junit.xml" \
   --mount-build-info "${CLOUD_BUILD_INFO}" \
