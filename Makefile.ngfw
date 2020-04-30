@@ -73,17 +73,17 @@ qcow2/%-push:
 	ssh $(NETBOOT_USER)@$(NETBOOT_HOST) "sudo python $(MOUNT_SCRIPT) link $(VERSION) $(TS) $(ARCH) $(REPOSITORY)"
 
 ## ova
+vmdk/%-image: conf
+	/usr/sbin/fai-diskimage $(FAI_COMMON_OPTIONS) --class $(FAI_COMMON_CLASSES),UNTANGLE_CLIENT_LOCAL,$(FAI_LAST_CLASSES) --size $(OVA_SIZE)G $*.raw
+	qemu-img convert -O vmdk -o subformat=streamOptimized $*.raw $(VMDK_NAME)
+
 $(OVF_FILE): $(OVF_FILE_TPL)
 	perl -pe 's/\+VMDK\+/'$(VMDK_NAME)'/ ; s/\+SIZE\+/'$(shell echo "$(OVA_SIZE)*1024^3" | bc)'/' $^ > $@
 
-ova/%-image: $(OVF_FILE) $(VMDK_NAME)
-	tar cvf $(OVA_NAME) $^
+ova/%-image: $(OVF_FILE) vmdk/%-image
+	tar cvf $(OVA_NAME) $(OVF_FILE) $(VMDK_NAME)
 	chmod 644 $(OVA_NAME)
 
 ova/%-push:
 	scp $(OVA_NAME) $(NETBOOT_USER)@$(NETBOOT_HOST):$(IMAGES_DIR)/$(VERSION)/
 	ssh $(NETBOOT_USER)@$(NETBOOT_HOST) "sudo python $(MOUNT_SCRIPT) link $(VERSION) $(TS) $(ARCH) $(REPOSITORY)"
-
-%.vmdk: conf
-	/usr/sbin/fai-diskimage $(FAI_COMMON_OPTIONS) --class $(FAI_COMMON_CLASSES),UNTANGLE_CLIENT_LOCAL,$(FAI_LAST_CLASSES) --size $(OVA_SIZE)G $@
-
