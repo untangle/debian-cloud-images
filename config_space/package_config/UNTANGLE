@@ -2,10 +2,10 @@ PACKAGES install-norec
 untangle-gateway
 
 PACKAGES install-norec AMD64
-linux-image-4.19.0-8-untangle-amd64-unsigned
+linux-image-4.19.0-8-untangle-amd64
 
 PACKAGES install-norec ARM64
-linux-image-4.19.0-8-untangle-arm64-unsigned
+linux-image-4.19.0-8-untangle-arm64
 
 PACKAGES install-norec UNTANGLE
 untangle-linux-config
