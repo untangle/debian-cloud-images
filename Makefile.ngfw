@@ -74,7 +74,7 @@ qcow2/%-push:
 
 ## ova
 vmdk/%-image: conf
-	/usr/sbin/fai-diskimage $(FAI_COMMON_OPTIONS) --class $(FAI_COMMON_CLASSES),UNTANGLE_CLIENT_LOCAL,$(FAI_LAST_CLASSES) --size $(OVA_SIZE)G $*.raw
+	/usr/sbin/fai-diskimage $(FAI_COMMON_OPTIONS) --class $(FAI_COMMON_CLASSES),UNTANGLE_CLIENT_LOCAL,UNTANGLE_OPENVM_TOOLS,$(FAI_LAST_CLASSES) --size $(OVA_SIZE)G $*.raw
 	qemu-img convert -O vmdk -o subformat=streamOptimized $*.raw $(VMDK_NAME)
 
 $(OVF_FILE): $(OVF_FILE_TPL)
