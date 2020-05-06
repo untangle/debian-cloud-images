@@ -84,7 +84,7 @@ qcow2/%-push:
 vmdk/%-image: conf
 	$(eval vendor := $*)
 	$(eval vendor_class := $(call VENDOR_CLASS,$*))
-	/usr/sbin/fai-diskimage $(FAI_COMMON_OPTIONS) --class $(FAI_COMMON_CLASSES),$(vendor_class),UNTANGLE_CLIENT_LOCAL,UNTANGLE_OPENVM_TOOLS,$(FAI_LAST_CLASSES) --size $(OVA_SIZE)G $*.raw
+	/usr/sbin/fai-diskimage $(FAI_COMMON_OPTIONS) --class $(FAI_COMMON_CLASSES),$(vendor_class),UNTANGLE_CLIENT_LOCAL,$(FAI_LAST_CLASSES) --size $(OVA_SIZE)G $*.raw
 	qemu-img convert -O vmdk -o subformat=streamOptimized $*.raw $(PROJECT)-$(vendor)-$(VMDK_NAME)
 
 $(OVF_FILE): $(OVF_FILE_TPL)
