@@ -23,7 +23,7 @@ export CLOUD_BUILD_DATA=src/debian_cloud_images/data/
 ## functions
 UPPER_CASE = $(shell echo $(1) | tr a-z A-Z)
 VENDOR_CLASS = UNTANGLE_VENDOR_$(call UPPER_CASE,$(1))
-LICENSE_CLASS = UNTANGLE_LICENSE_$(call UPPER_CASE,$(1))_$(call UPPER_CASE,$(2))
+LICENSE_CLASS = UNTANGLE_LICENSE_$(call UPPER_CASE,$(1))
 
 ## variables
 PROJECT := ngfw
@@ -49,6 +49,7 @@ OVA_NAME := $(BASE_NAME).ova
 QCOW2_NAME := $(BASE_NAME).qcow2
 RAW_NAME := $(BASE_NAME).raw
 VMDK_NAME := $(BASE_NAME).vmdk
+EC2_NAME := $(BASE_NAME).ec2
 # sizes in GB
 DEFAULT_SIZE := 10
 OVA_SIZE := 320
@@ -96,4 +97,19 @@ ova/%-image: $(OVF_FILE) vmdk/%-image
 ova/%-push:
 	$(eval vendor := $*)
 	scp $(PROJECT)-$(vendor)-$(OVA_NAME) $(NETBOOT_USER)@$(NETBOOT_HOST):$(IMAGES_DIR)/$(VERSION)/
+	ssh $(NETBOOT_USER)@$(NETBOOT_HOST) "sudo python $(MOUNT_SCRIPT) link $(VERSION) $(TS) $(ARCH) $(REPOSITORY)"
+
+## ec2/<license>/<vendor>-image
+ec2/%-image: conf
+	$(eval vendor := $(shell basename $*))
+	$(eval vendor_class  := $(call VENDOR_CLASS,$(vendor)))
+
+	$(eval license := $(shell dirname $*))
+	$(eval license_class := $(call LICENSE_CLASS,$(license)))
+
+	/usr/sbin/fai-diskimage $(FAI_COMMON_OPTIONS) --class $(FAI_COMMON_CLASSES),$(vendor_class),$(license_class),$(FAI_LAST_CLASSES) --size $(DEFAULT_SIZE)G $(PROJECT)-$(vendor)-$(RAW_NAME)
+	mv $(PROJECT)-$(vendor)-$(VMDK_NAME) $(PROJECT)-$(vendor)-$(EC2_NAME)
+
+ec2/%-push:
+	scp $(QCOW2_NAME) $(NETBOOT_USER)@$(NETBOOT_HOST):$(IMAGES_DIR)/$(VERSION)/
 	ssh $(NETBOOT_USER)@$(NETBOOT_HOST) "sudo python $(MOUNT_SCRIPT) link $(VERSION) $(TS) $(ARCH) $(REPOSITORY)"
