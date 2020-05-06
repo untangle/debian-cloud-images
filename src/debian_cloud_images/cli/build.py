@@ -162,6 +162,14 @@ VendorEnum = enum.Enum(  # type:ignore
             'fai_size': '2G',
             'fai_classes': ('NOCLOUD', ),
         },
+        'default': {
+            'fai_size': '10G',
+            'fai_classes': (),
+        },
+        'ova': {
+            'fai_size': '320G',
+            'fai_classes': (),
+        },
     },
     type=Vendor,
 )
