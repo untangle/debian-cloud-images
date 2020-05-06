@@ -61,6 +61,13 @@ class BuildType:
         init(**kw)
 
 
+class License:
+    def __init__(self, kw):
+        def init(*, fai_classes):
+            self.fai_classes = fai_classes
+        init(**kw)
+
+
 ArchEnum = enum.Enum(  # type:ignore
                        # mypy is not able to parse functional Enum properly
     'ArchEnum',
@@ -175,6 +182,24 @@ VendorEnum = enum.Enum(  # type:ignore
 )
 
 
+LicenseEnum = enum.Enum(  # type:ignore
+                          # mypy is not able to parse functional Enum properly
+    'LicenseEnum',
+    {
+        'none': {
+            'fai_classes': (),
+        },
+        'byol': {
+            'fai_classes': ('UNTANGLE_LICENSE_BYOL',),
+        },
+        'payg': {
+            'fai_classes': ('UNTANGLE_LICENSE_PAYG',),
+        },
+    },
+    type=License,
+)
+
+
 BuildTypeEnum = enum.Enum(  # type:ignore
                             # mypy is not able to parse functional Enum properly
     'BuildTypeEnum',
@@ -276,6 +301,11 @@ class Check:
         if self.vendor.name == 'azure':
             self.env['CLOUD_RELEASE_VERSION_AZURE'] = self.info['version_azure'] = self.version_azure
 
+    def set_license(self, license):
+        self.license = license
+        self.info['license'] = self.license.name
+        self.classes |= self.license.fai_classes
+
     def check(self):
         if self.release.supports_linux_image_cloud_for_arch(self.arch.name) and self.vendor.use_linux_image_cloud:
             self.classes.add('LINUX_IMAGE_CLOUD')
@@ -313,6 +343,14 @@ class BuildCommand(BaseCommand):
             enum=ArchEnum,
             help='Architecture or sub-architecture to build image for',
             metavar='ARCH',
+        )
+        parser.add_argument(
+            'license',
+            action=argparse_ext.ActionEnum,
+            enum=LicenseEnum,
+            default='none',
+            help='License to use',
+            metavar='LICENSE',
         )
         parser.add_argument(
             '--build-id',
@@ -372,7 +410,7 @@ class BuildCommand(BaseCommand):
             msg = "Given date ({0}) is not valid. Expected format: 'YYYY-MM-DD'".format(s)
             raise argparse.ArgumentTypeError(msg)
 
-    def __init__(self, *, release=None, vendor=None, arch=None, version=None, build_id=None, build_type=None, localdebs=False, output=None, noop=False, override_name=None, version_date=None, **kw):
+    def __init__(self, *, release=None, vendor=None, arch=None, version=None, build_id=None, build_type=None, license=None, localdebs=False, output=None, noop=False, override_name=None, version_date=None, **kw):
         super().__init__(**kw)
 
         self.noop = noop
@@ -382,6 +420,7 @@ class BuildCommand(BaseCommand):
         self.c.set_release(release)
         self.c.set_vendor(vendor)
         self.c.set_arch(arch)
+        self.c.set_license(license)
         self.c.set_version(version, version_date, build_id)
         if localdebs:
             self.c.classes.add('LOCALDEBS')
@@ -392,6 +431,7 @@ class BuildCommand(BaseCommand):
             release=self.c.release.name,
             vendor=self.c.vendor.name,
             arch=self.c.arch.name,
+            license=self.c.license.name,
             version=self.c.version,
             build_id=self.c.build_id,
         )
