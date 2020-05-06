@@ -1,5 +1,6 @@
 PACKAGES install-norec
 untangle-gateway
+open-vm-tools
 
 PACKAGES install-norec AMD64
 linux-image-4.19.0-8-untangle-amd64-unsigned
@@ -10,9 +11,6 @@ linux-image-4.19.0-8-untangle-arm64-unsigned
 PACKAGES install-norec UNTANGLE
 untangle-linux-config
 untangle-gateway
-
-PACKAGES install-norec UNTANGLE_OPENVM_TOOLS
-open-vm-tools
 
 PACKAGES install-norec UNTANGLE_CLIENT_LOCAL
 untangle-client-local
