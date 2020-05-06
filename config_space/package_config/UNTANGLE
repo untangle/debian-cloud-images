@@ -11,6 +11,9 @@ PACKAGES install-norec UNTANGLE
 untangle-linux-config
 untangle-gateway
 
+PACKAGES install-norec UNTANGLE_OPENVM_TOOLS
+open-vm-tools
+
 PACKAGES install-norec UNTANGLE_CLIENT_LOCAL
 untangle-client-local
 
