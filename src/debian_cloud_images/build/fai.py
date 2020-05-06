@@ -57,6 +57,7 @@ class RunFAI:
             'sudo',
             'env',
             f'PYTHONPATH={dci_path}',
+            'http_proxy=' + os.getenv('http_proxy', ''),
         ) + tuple(f'{k}={v}' for k, v in sorted(self.env.items())) + (
             self.fai_filename,
             '--verbose',
