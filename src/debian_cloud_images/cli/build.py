@@ -307,10 +307,10 @@ class Check:
         self.classes |= self.license.fai_classes
 
     def check(self):
-        if self.release.supports_linux_image_cloud_for_arch(self.arch.name) and self.vendor.use_linux_image_cloud:
-            self.classes.add('LINUX_IMAGE_CLOUD')
-        else:
-            self.classes.add('LINUX_IMAGE_BASE')
+        # if self.release.supports_linux_image_cloud_for_arch(self.arch.name) and self.vendor.use_linux_image_cloud:
+        #     self.classes.add('LINUX_IMAGE_CLOUD')
+        # else:
+        #     self.classes.add('LINUX_IMAGE_BASE')
         self.classes.add('LAST')
 
 
