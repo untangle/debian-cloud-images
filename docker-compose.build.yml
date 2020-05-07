@@ -35,7 +35,7 @@ services:
         # present on the target mirror (default)"
         FORCE: ${FORCE}
         TRAVIS_BRANCH: ${TRAVIS_BRANCH:-master}
-        TRAVIS_PULL_REQUEST:
+        TRAVIS_PULL_REQUEST_BRANCH:
         PACKAGE_SERVER_IP: ${PACKAGE_SERVER_IP:-10.112.11.105}
       privileged: ${PRIVILEGED:-true}
       extra_hosts:
