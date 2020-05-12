@@ -21,7 +21,7 @@ class ImagePublicType(enum.Enum):
         'azure_offer': 'debian-{release_baseid}',
         'azure_sku': '{release_id}',
         'path': '{release}/{version}/debian-{release_id}-{vendor}-{arch}-{version}',
-        'vendor_family': 'debian-{release_id}-{arch}',
+        'vendor_family': 'debian-{release_id}-{license}-{arch}',
         'vendor_description': 'Debian {release_id} ({version})',
     }
 

@@ -109,8 +109,8 @@ ReleaseEnum = enum.Enum(  # type:ignore
             'arch_supports_linux_image_cloud': ('amd64',),
         },
         'buster-ngfw': {
-            'id': '10-ngfw',
-            'baseid': '10',
+            'id': 'ngfw',
+            'baseid': 'buster',
             'fai_classes': ('BUSTER', 'UNTANGLE', 'UNTANGLE_CLIENT_LOCAL'),
             'arch_supports_linux_image_cloud': (),
         },
@@ -206,15 +206,15 @@ BuildTypeEnum = enum.Enum(  # type:ignore
     {
         'dev': {
             'fai_classes': ('TYPE_DEV', ),
-            'output_name': 'debian-{release}-{vendor}-{arch}-{build_type}-{build_id}-{version}',
+            'output_name': 'debian-{release}-{vendor}-{license}-{arch}-{build_type}-{build_id}-{version}',
             'output_version': '{version}',
             'output_version_azure': '0.0.{version!s}',
         },
         'official': {
             'fai_classes': (),
-            'output_name': 'debian-{release}-{vendor}-{arch}-{build_type}-{version}',
-            'output_version': '{date}-{version}',
-            'output_version_azure': '0.{date!s}.{version!s}',
+            'output_name': 'debian-{release}-{vendor}-{license}-{arch}-{build_type}-{version}',
+            'output_version': '{version}-{date}',
+            'output_version_azure': '{version!s}.{date!s}',
         },
     },
     type=BuildType,
@@ -290,11 +290,11 @@ class Check:
 
         self.version = self.type.output_version.format(
             version=version,
-            date=version_date.strftime('%Y%m%d'),
+            date=version_date.strftime('%Y%m%dT%H%M'),
         )
         self.version_azure = self.type.output_version_azure.format(
             version=version,
-            date=version_date.strftime('%Y%m%d'),
+            date=version_date.strftime('%Y%m%dT%H%M'),
         )
 
         self.env['CLOUD_RELEASE_VERSION'] = self.info['version'] = self.version
@@ -393,7 +393,7 @@ class BuildCommand(BaseCommand):
             env='CI_PIPELINE_IID',
             help='version of image',
             metavar='VERSION',
-            type=int,
+            type=str,
         )
         parser.add_argument(
             '--version-date',
@@ -405,9 +405,9 @@ class BuildCommand(BaseCommand):
     @staticmethod
     def _argparse_type_date(s):
         try:
-            return datetime.strptime(s, "%Y-%m-%d")
+            return datetime.strptime(s, "%Y-%m-%dT%H%M%S")
         except ValueError:
-            msg = "Given date ({0}) is not valid. Expected format: 'YYYY-MM-DD'".format(s)
+            msg = "Given date ({0}) is not valid. Expected format: '%Y-%m-%dT%H%M%S'".format(s)
             raise argparse.ArgumentTypeError(msg)
 
     def __init__(self, *, release=None, vendor=None, arch=None, version=None, build_id=None, build_type=None, license=None, localdebs=False, output=None, noop=False, override_name=None, version_date=None, **kw):
