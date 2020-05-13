@@ -143,12 +143,12 @@ VendorEnum = enum.Enum(  # type:ignore
     {
         'azure': {
             'fai_size': '30G',
-            'fai_classes': ('AZURE'),
+            'fai_classes': ('AZURE', ),
             'use_linux_image_cloud': True,
         },
         'ec2': {
             'fai_size': '8G',
-            'fai_classes': ('EC2',),
+            'fai_classes': ('EC2', ),
             'use_linux_image_cloud': True,
         },
         'gce': {
