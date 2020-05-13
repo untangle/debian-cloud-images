@@ -1,0 +1,8 @@
+---
+
+ec2:
+  image:
+    regions:
+      - us-east-1
+  storage:
+    name: untangle-ngfw-snapshots

@@ -15,10 +15,6 @@ endif
 
 ## shell variables
 export http_proxy=$(shell perl -pe 's/.*"(.*?)".*/$$1/' 2> /dev/null < /etc/apt/apt.conf.d/01proxy)
-export CLOUD_BUILD_OUTPUT_DIR=.
-export CLOUD_BUILD_NAME=ngfw
-export CLOUD_BUILD_INFO='{}'
-export CLOUD_BUILD_DATA=src/debian_cloud_images/data/
 
 ## functions
 UPPER_CASE = $(shell echo $(1) | tr a-z A-Z)
@@ -28,7 +24,9 @@ LICENSE_CLASS = UNTANGLE_LICENSE_$(call UPPER_CASE,$(1))
 ## variables
 PROJECT := ngfw
 ARCH := $(shell dpkg-architecture -qDEB_BUILD_ARCH)
-TS := $(shell date +"%Y-%m-%dT%H%M%S")
+TS_EPOCH := $(shell date +"%s")
+TS := $(shell date -d @$(TS_EPOCH) +"%Y-%m-%dT%H%M%S")
+TS_DCI := $(shell date -d @$(TS_EPOCH) +"%Y%m%dT%H%M")
 HOST := $(shell hostname -s)
 VERSION ?= $(shell cat $(PKGTOOLS_DIR)/resources/VERSION)
 ARCH_CAPS := $(shell echo $(ARCH) | tr '[a-z]' '[A-Z]')
@@ -102,14 +100,15 @@ ova/%-push:
 ## ec2/<license>/<vendor>-image
 ec2/%-image: conf
 	$(eval vendor := $(shell basename $*))
-	$(eval vendor_class  := $(call VENDOR_CLASS,$(vendor)))
-
 	$(eval license := $(shell dirname $*))
-	$(eval license_class := $(call LICENSE_CLASS,$(license)))
 
-	/usr/sbin/fai-diskimage $(FAI_COMMON_OPTIONS) --class $(FAI_COMMON_CLASSES),$(vendor_class),$(license_class),$(FAI_LAST_CLASSES) --size $(DEFAULT_SIZE)G $(PROJECT)-$(vendor)-$(RAW_NAME)
-	mv $(PROJECT)-$(vendor)-$(VMDK_NAME) $(PROJECT)-$(vendor)-$(EC2_NAME)
+	./bin/debian-cloud-images build --build-type official --build-id b0 --version $(VERSION) --version-date $(TS) $(REPOSITORY)-$(PROJECT) ec2 $(ARCH) $(license)
+	rename "s/$(TS_DCI)/$(TS)/" debian-$(REPOSITORY)-$(PROJECT)*
 
 ec2/%-push:
-	scp $(QCOW2_NAME) $(NETBOOT_USER)@$(NETBOOT_HOST):$(IMAGES_DIR)/$(VERSION)/
-	ssh $(NETBOOT_USER)@$(NETBOOT_HOST) "sudo python $(MOUNT_SCRIPT) link $(VERSION) $(TS) $(ARCH) $(REPOSITORY)"
+	$(eval vendor := $(shell basename $*))
+	$(eval license := $(shell dirname $*))
+	$(eval dci_base_name := debian-$(REPOSITORY)-$(PROJECT)-ec2-$(license)-$(ARCH)-official-$(VERSION)-$(TS))
+
+	./bin/debian-cloud-images upload-ec2 --variant release --config-file ngfw.yaml $(dci_base_name).build.json
+	scp $(dci_base_name).tar $(dci_base_name).info $(dci_base_name).build.junit.xml $(dci_base_name).build.json $(dci_base_name).upload-ec2.json $(NETBOOT_USER)@$(NETBOOT_HOST):$(IMAGES_DIR)/$(VERSION)/

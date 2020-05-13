@@ -4,3 +4,4 @@ tmp-*
 *.qcow2
 *.vmdk
 *.ova
+*.tar
