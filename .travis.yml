@@ -42,7 +42,7 @@ jobs:
       script:
         - docker-compose -f docker-compose.build.yml run pkgtools
         - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw  ec2/byol/untangle-image ec2/byol/untangle-push"
-      if: type IN (api)
+      if: type = api
 
 notifications:
   email: false
