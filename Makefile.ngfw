@@ -114,7 +114,7 @@ ec2/%-push:
 	$(eval license := $(shell dirname $*))
 	$(eval dci_base_name := debian-$(REPOSITORY)-$(PROJECT)-ec2-$(license)-$(ARCH)-official-$(VERSION)-$(TS))
 
-	./bin/debian-cloud-images upload-ec2 --variant release --config-file ngfw.yaml $(dci_base_name).build.json
+	./bin/debian-cloud-images upload-ec2 --debug --variant release --config-file ngfw.yaml $(dci_base_name).build.json
 	./share-ami.sh $(dci_base_name).upload-ec2.json
 
 	scp $(dci_base_name).tar $(dci_base_name).info $(dci_base_name).build.junit.xml $(dci_base_name).build.json $(dci_base_name).upload-ec2.json $(NETBOOT_USER)@$(NETBOOT_HOST):$(IMAGES_DIR)/$(VERSION)/
