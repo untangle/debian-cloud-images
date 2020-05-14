@@ -38,6 +38,12 @@ jobs:
         - docker-compose -f docker-compose.build.yml run pkgtools
         - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw ova/untangle-image ova/untangle-push"
 
+    - stage: build ec2
+      script:
+        - docker-compose -f docker-compose.build.yml run pkgtools
+        - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw  ec2/byol/untangle-image ec2/byol/untangle-push"
+      if: type IN (api)
+
 notifications:
   email: false
   slack:
