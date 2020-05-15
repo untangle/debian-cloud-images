@@ -1,1 +1,1 @@
-deb {%untangle_mirror%} {%untangle_release%} main non-free
+deb http://{%untangle_mirror%}/public/{%release%} {%untangle_release%} main non-free

@@ -32,6 +32,9 @@ RUN apt install -y debootstrap
 RUN apt install -y bc
 RUN apt install -y openssh-client
 RUN apt install -y git
+RUN apt install -y rename
+RUN apt install -y awscli
+RUN apt install -y jq
 
 RUN sed -i '1161s%umount%#umount%' /usr/share/debootstrap/functions
 

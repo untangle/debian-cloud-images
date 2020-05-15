@@ -16,7 +16,13 @@ config_space/class/UNTANGLE.var
 *.ovf
 *.ova
 *.qcow2
+*.tar
 *.vmdk
+*.build.json
+*.upload-*.json
+*.build-fai.json
+*.build.junit.xml
+*.info
 config_space/config_space
 config_space/scripts/ngfw.build-fai.json
 config_space/scripts/ngfw.info

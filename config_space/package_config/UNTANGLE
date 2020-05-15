@@ -1,5 +1,6 @@
 PACKAGES install-norec
 untangle-gateway
+open-vm-tools
 
 PACKAGES install-norec AMD64
 linux-image-4.19.0-8-untangle-amd64
@@ -7,24 +8,5 @@ linux-image-4.19.0-8-untangle-amd64
 PACKAGES install-norec ARM64
 linux-image-4.19.0-8-untangle-arm64
 
-PACKAGES install-norec UNTANGLE
-untangle-linux-config
-untangle-gateway
-
-PACKAGES install-norec UNTANGLE_OPENVM_TOOLS
-open-vm-tools
-
 PACKAGES install-norec UNTANGLE_CLIENT_LOCAL
 untangle-client-local
-
-PACKAGES install-norec UNTANGLE_AZURE_BYOL
-untangle-hardware-azure-byol
-
-PACKAGES install-norec UNTANGLE_AZURE_PAYG
-untangle-hardware-azure-payg
-
-PACKAGES install-norec UNTANGLE_EC2_BYOL
-untangle-hardware-ec2-byol
-
-PACKAGES install-norec UNTANGLE_EC2_PAYG
-untangle-hardware-ec2-payg

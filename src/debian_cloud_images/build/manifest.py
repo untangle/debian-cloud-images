@@ -42,6 +42,8 @@ class CreateManifest:
         manifest.metadata.labels[wellknown.label_do_arch] = self.info['arch']
         manifest.metadata.labels[wellknown.label_do_dist] = 'debian'
         manifest.metadata.labels[wellknown.label_do_release] = self.info['release']
+        manifest.metadata.labels[wellknown.label_ngfw_license] = self.info['license']
+        manifest.metadata.labels[wellknown.label_ngfw_version] = self.info['version']
         if self.info['type'] == 'dev':
             manifest.metadata.labels[wellknown.label_bcdo_build_id] = self.info['build_id']
             manifest.metadata.labels[wellknown.label_bcdo_type] = self.info['type']

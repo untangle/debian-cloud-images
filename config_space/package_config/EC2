@@ -3,3 +3,9 @@ awscli
 python3-boto
 cloud-init
 cloud-guest-utils
+
+PACKAGES install-norec UNTANGLE_LICENSE_BYOL
+untangle-hardware-ec2-byol
+
+PACKAGES install-norec UNTANGLE_LICENSE_PAYG
+untangle-hardware-ec2-payg

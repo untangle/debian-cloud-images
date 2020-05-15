@@ -7,3 +7,9 @@ python
 PACKAGES install-norec BULLSEYE SID
 cloud-init
 cloud-guest-utils
+
+PACKAGES install-norec UNTANGLE_LICENSE_BYOL
+untangle-hardware-azure-byol
+
+PACKAGES install-norec UNTANGLE_LICENSE_PAYG
+untangle-hardware-azure-payg

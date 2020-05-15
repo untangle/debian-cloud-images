@@ -61,6 +61,13 @@ class BuildType:
         init(**kw)
 
 
+class License:
+    def __init__(self, kw):
+        def init(*, fai_classes):
+            self.fai_classes = fai_classes
+        init(**kw)
+
+
 ArchEnum = enum.Enum(  # type:ignore
                        # mypy is not able to parse functional Enum properly
     'ArchEnum',
@@ -101,6 +108,12 @@ ReleaseEnum = enum.Enum(  # type:ignore
             'fai_classes': ('BUSTER', 'EXTRAS'),
             'arch_supports_linux_image_cloud': ('amd64',),
         },
+        'buster-ngfw': {
+            'id': 'ngfw',
+            'baseid': 'buster',
+            'fai_classes': ('BUSTER', 'UNTANGLE', 'UNTANGLE_CLIENT_LOCAL'),
+            'arch_supports_linux_image_cloud': (),
+        },
         'buster-backports': {
             'id': '10-backports',
             'baseid': '10',
@@ -130,12 +143,12 @@ VendorEnum = enum.Enum(  # type:ignore
     {
         'azure': {
             'fai_size': '30G',
-            'fai_classes': ('AZURE', 'IPV6_DHCP'),
+            'fai_classes': ('AZURE', ),
             'use_linux_image_cloud': True,
         },
         'ec2': {
             'fai_size': '8G',
-            'fai_classes': ('EC2', 'IPV6_DHCP'),
+            'fai_classes': ('EC2', ),
             'use_linux_image_cloud': True,
         },
         'gce': {
@@ -156,8 +169,34 @@ VendorEnum = enum.Enum(  # type:ignore
             'fai_size': '2G',
             'fai_classes': ('NOCLOUD', ),
         },
+        'default': {
+            'fai_size': '10G',
+            'fai_classes': (),
+        },
+        'ova': {
+            'fai_size': '320G',
+            'fai_classes': (),
+        },
     },
     type=Vendor,
+)
+
+
+LicenseEnum = enum.Enum(  # type:ignore
+                          # mypy is not able to parse functional Enum properly
+    'LicenseEnum',
+    {
+        'none': {
+            'fai_classes': (),
+        },
+        'byol': {
+            'fai_classes': ('UNTANGLE_LICENSE_BYOL',),
+        },
+        'payg': {
+            'fai_classes': ('UNTANGLE_LICENSE_PAYG',),
+        },
+    },
+    type=License,
 )
 
 
@@ -167,15 +206,15 @@ BuildTypeEnum = enum.Enum(  # type:ignore
     {
         'dev': {
             'fai_classes': ('TYPE_DEV', ),
-            'output_name': 'debian-{release}-{vendor}-{arch}-{build_type}-{build_id}-{version}',
+            'output_name': 'debian-{release}-{vendor}-{license}-{arch}-{build_type}-{build_id}-{version}',
             'output_version': '{version}',
             'output_version_azure': '0.0.{version!s}',
         },
         'official': {
             'fai_classes': (),
-            'output_name': 'debian-{release}-{vendor}-{arch}-{build_type}-{version}',
-            'output_version': '{date}-{version}',
-            'output_version_azure': '0.{date!s}.{version!s}',
+            'output_name': 'debian-{release}-{vendor}-{license}-{arch}-{build_type}-{version}',
+            'output_version': '{version}-{date}',
+            'output_version_azure': '{version!s}.{date!s}',
         },
     },
     type=BuildType,
@@ -251,22 +290,27 @@ class Check:
 
         self.version = self.type.output_version.format(
             version=version,
-            date=version_date.strftime('%Y%m%d'),
+            date=version_date.strftime('%Y%m%dT%H%M'),
         )
         self.version_azure = self.type.output_version_azure.format(
             version=version,
-            date=version_date.strftime('%Y%m%d'),
+            date=version_date.strftime('%Y%m%dT%H%M'),
         )
 
         self.env['CLOUD_RELEASE_VERSION'] = self.info['version'] = self.version
         if self.vendor.name == 'azure':
             self.env['CLOUD_RELEASE_VERSION_AZURE'] = self.info['version_azure'] = self.version_azure
 
+    def set_license(self, license):
+        self.license = license
+        self.info['license'] = self.license.name
+        self.classes |= self.license.fai_classes
+
     def check(self):
-        if self.release.supports_linux_image_cloud_for_arch(self.arch.name) and self.vendor.use_linux_image_cloud:
-            self.classes.add('LINUX_IMAGE_CLOUD')
-        else:
-            self.classes.add('LINUX_IMAGE_BASE')
+        # if self.release.supports_linux_image_cloud_for_arch(self.arch.name) and self.vendor.use_linux_image_cloud:
+        #     self.classes.add('LINUX_IMAGE_CLOUD')
+        # else:
+        #     self.classes.add('LINUX_IMAGE_BASE')
         self.classes.add('LAST')
 
 
@@ -299,6 +343,14 @@ class BuildCommand(BaseCommand):
             enum=ArchEnum,
             help='Architecture or sub-architecture to build image for',
             metavar='ARCH',
+        )
+        parser.add_argument(
+            'license',
+            action=argparse_ext.ActionEnum,
+            enum=LicenseEnum,
+            default='none',
+            help='License to use',
+            metavar='LICENSE',
         )
         parser.add_argument(
             '--build-id',
@@ -341,7 +393,7 @@ class BuildCommand(BaseCommand):
             env='CI_PIPELINE_IID',
             help='version of image',
             metavar='VERSION',
-            type=int,
+            type=str,
         )
         parser.add_argument(
             '--version-date',
@@ -353,12 +405,12 @@ class BuildCommand(BaseCommand):
     @staticmethod
     def _argparse_type_date(s):
         try:
-            return datetime.strptime(s, "%Y-%m-%d")
+            return datetime.strptime(s, "%Y-%m-%dT%H%M%S")
         except ValueError:
-            msg = "Given date ({0}) is not valid. Expected format: 'YYYY-MM-DD'".format(s)
+            msg = "Given date ({0}) is not valid. Expected format: '%Y-%m-%dT%H%M%S'".format(s)
             raise argparse.ArgumentTypeError(msg)
 
-    def __init__(self, *, release=None, vendor=None, arch=None, version=None, build_id=None, build_type=None, localdebs=False, output=None, noop=False, override_name=None, version_date=None, **kw):
+    def __init__(self, *, release=None, vendor=None, arch=None, version=None, build_id=None, build_type=None, license=None, localdebs=False, output=None, noop=False, override_name=None, version_date=None, **kw):
         super().__init__(**kw)
 
         self.noop = noop
@@ -368,6 +420,7 @@ class BuildCommand(BaseCommand):
         self.c.set_release(release)
         self.c.set_vendor(vendor)
         self.c.set_arch(arch)
+        self.c.set_license(license)
         self.c.set_version(version, version_date, build_id)
         if localdebs:
             self.c.classes.add('LOCALDEBS')
@@ -378,6 +431,7 @@ class BuildCommand(BaseCommand):
             release=self.c.release.name,
             vendor=self.c.vendor.name,
             arch=self.c.arch.name,
+            license=self.c.license.name,
             version=self.c.version,
             build_id=self.c.build_id,
         )

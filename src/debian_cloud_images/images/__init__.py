@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class Images(dict):
     def read(self, manifest):
         try:
-            name = manifest.name.rsplit('.', 3)[0]
+            name = manifest.name.replace('.build.json', '')
             image = self.setdefault(name, Image(name, manifest.parent))
             image.read_manifests(manifest)
 
