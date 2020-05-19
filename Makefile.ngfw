@@ -92,7 +92,7 @@ vmdk/%-image: conf
 
 ova/%-image: vmdk/%-image
 	$(eval vendor := $*)
-	perl -pe 's/\+VMDK\+/'$(VMDK_NAME)'/ ; s/\+SIZE\+/'$(shell echo "$(OVA_SIZE)*1024^3" | bc)'/' $(OVF_FILE_TPL) > $(PROJECT)-$(vendor)-$(OVF_FILE)
+	perl -pe 's/\+VMDK\+/'$(PROJECT)-$(vendor)-$(VMDK_NAME)'/ ; s/\+SIZE\+/'$(shell echo "$(OVA_SIZE)*1024^3" | bc)'/' $(OVF_FILE_TPL) > $(PROJECT)-$(vendor)-$(OVF_FILE)
 	tar cvf $(PROJECT)-$(vendor)-$(OVA_NAME) $(PROJECT)-$(vendor)-$(OVF_FILE) $(PROJECT)-$(vendor)-$(VMDK_NAME)
 
 ova/%-push:
