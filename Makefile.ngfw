@@ -90,11 +90,10 @@ vmdk/%-image: conf
 	/usr/sbin/fai-diskimage $(FAI_COMMON_OPTIONS) --class $(FAI_COMMON_CLASSES),$(vendor_class),UNTANGLE_CLIENT_LOCAL,UNTANGLE_LINUX_CONFIG,$(FAI_LAST_CLASSES) --size $(OVA_SIZE)G $*.raw
 	qemu-img convert -O vmdk -o subformat=streamOptimized $*.raw $(PROJECT)-$(vendor)-$(VMDK_NAME)
 
-$(OVF_FILE): $(OVF_FILE_TPL)
-	perl -pe 's/\+VMDK\+/'$(VMDK_NAME)'/ ; s/\+SIZE\+/'$(shell echo "$(OVA_SIZE)*1024^3" | bc)'/' $^ > $@
-
-ova/%-image: $(OVF_FILE) vmdk/%-image
-	tar cvf $(PROJECT)-$(vendor)-$(OVA_NAME) $(OVF_FILE) $(PROJECT)-$(vendor)-$(VMDK_NAME)
+ova/%-image: vmdk/%-image
+	$(eval vendor := $*)
+	perl -pe 's/\+VMDK\+/'$(VMDK_NAME)'/ ; s/\+SIZE\+/'$(shell echo "$(OVA_SIZE)*1024^3" | bc)'/' $(OVF_FILE_TPL) > $(PROJECT)-$(vendor)-$(OVF_FILE)
+	tar cvf $(PROJECT)-$(vendor)-$(OVA_NAME) $(PROJECT)-$(vendor)-$(OVF_FILE) $(PROJECT)-$(vendor)-$(VMDK_NAME)
 
 ova/%-push:
 	$(eval vendor := $*)
