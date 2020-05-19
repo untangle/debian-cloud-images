@@ -69,13 +69,13 @@ conf: # FAI conf for main class
 raw/%-image: conf
 	$(eval vendor := $*)
 	$(eval vendor_class := $(call VENDOR_CLASS,$*))
-	/usr/sbin/fai-diskimage $(FAI_COMMON_OPTIONS) --class $(FAI_COMMON_CLASSES),$(vendor_class),UNTANGLE_CLIENT_LOCAL,$(FAI_LAST_CLASSES) --size $(DEFAULT_SIZE)G $(PROJECT)-$(vendor)-$(RAW_NAME)
+	/usr/sbin/fai-diskimage $(FAI_COMMON_OPTIONS) --class $(FAI_COMMON_CLASSES),$(vendor_class),UNTANGLE_CLIENT_LOCAL,UNTANGLE_LINUX_CONFIG,$(FAI_LAST_CLASSES) --size $(DEFAULT_SIZE)G $(PROJECT)-$(vendor)-$(RAW_NAME)
 
 ## qcow2
 qcow2/%-image: conf
 	$(eval vendor := $*)
 	$(eval vendor_class := $(call VENDOR_CLASS,$*))
-	/usr/sbin/fai-diskimage $(FAI_COMMON_OPTIONS) --class $(FAI_COMMON_CLASSES),$(vendor_class),UNTANGLE_CLIENT_LOCAL,$(FAI_LAST_CLASSES) --size $(DEFAULT_SIZE)G $(PROJECT)-$(vendor)-$(QCOW2_NAME)
+	/usr/sbin/fai-diskimage $(FAI_COMMON_OPTIONS) --class $(FAI_COMMON_CLASSES),$(vendor_class),UNTANGLE_CLIENT_LOCAL,UNTANGLE_LINUX_CONFIG,$(FAI_LAST_CLASSES) --size $(DEFAULT_SIZE)G $(PROJECT)-$(vendor)-$(QCOW2_NAME)
 
 qcow2/%-push:
 	$(eval vendor := $*)
@@ -87,7 +87,7 @@ qcow2/%-push:
 vmdk/%-image: conf
 	$(eval vendor := $*)
 	$(eval vendor_class := $(call VENDOR_CLASS,$*))
-	/usr/sbin/fai-diskimage $(FAI_COMMON_OPTIONS) --class $(FAI_COMMON_CLASSES),$(vendor_class),UNTANGLE_CLIENT_LOCAL,$(FAI_LAST_CLASSES) --size $(OVA_SIZE)G $*.raw
+	/usr/sbin/fai-diskimage $(FAI_COMMON_OPTIONS) --class $(FAI_COMMON_CLASSES),$(vendor_class),UNTANGLE_CLIENT_LOCAL,UNTANGLE_LINUX_CONFIG,$(FAI_LAST_CLASSES) --size $(OVA_SIZE)G $*.raw
 	qemu-img convert -O vmdk -o subformat=streamOptimized $*.raw $(PROJECT)-$(vendor)-$(VMDK_NAME)
 
 $(OVF_FILE): $(OVF_FILE_TPL)
