@@ -47,7 +47,13 @@ jobs:
     - stage: build ec2/payg
       script:
         - docker-compose -f docker-compose.build.yml run pkgtools
-        - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw  ec2/payg/untangle-image ec2/byol/untangle-push"
+        - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw  ec2/payg/untangle-image ec2/payg/untangle-push"
+      if: type = api
+
+    - stage: build azure/byol
+      script:
+        - docker-compose -f docker-compose.build.yml run pkgtools
+        - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw  azure/byol/untangle-image azure/byol/untangle-push"
       if: type = api
 
 notifications:
