@@ -290,11 +290,11 @@ class Check:
 
         self.version = self.type.output_version.format(
             version=version,
-            date=version_date.strftime('%Y%m%dT%H%M'),
+            date=version_date.strftime('%Y%m%dt%H%M'),
         )
         self.version_azure = self.type.output_version_azure.format(
             version=version,
-            date=version_date.strftime('%Y%m%dT%H%M'),
+            date=version_date.strftime('%Y%m%dt%H%M'),
         )
 
         self.env['CLOUD_RELEASE_VERSION'] = self.info['version'] = self.version
