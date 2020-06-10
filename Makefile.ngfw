@@ -22,6 +22,8 @@ export CLOUD_BUILD_DATA=src/debian_cloud_images/data/
 
 ## functions
 UPPER_CASE = $(shell echo $(1) | tr a-z A-Z)
+LOWER_CASE = $(shell echo $(1) | tr A-Z a-z)
+AZURE_NAMING = $(shell echo $(1) | tr . -)
 VENDOR_CLASS = UNTANGLE_VENDOR_$(call UPPER_CASE,$(1))
 LICENSE_CLASS = UNTANGLE_LICENSE_$(call UPPER_CASE,$(1))
 
@@ -29,8 +31,8 @@ LICENSE_CLASS = UNTANGLE_LICENSE_$(call UPPER_CASE,$(1))
 PROJECT := ngfw
 ARCH := $(shell dpkg-architecture -qDEB_BUILD_ARCH)
 TS_EPOCH := $(shell date +"%s")
-TS := $(shell date -d @$(TS_EPOCH) +"%Y-%m-%dT%H%M%S")
-TS_DCI := $(shell date -d @$(TS_EPOCH) +"%Y%m%dT%H%M")
+TS := $(shell date -d @$(TS_EPOCH) +"%Y-%m-%dt%H%M%S")
+TS_DCI := $(shell date -d @$(TS_EPOCH) +"%Y%m%dt%H%M")
 HOST := $(shell hostname -s)
 VERSION ?= $(shell cat $(PKGTOOLS_DIR)/resources/VERSION)
 ARCH_CAPS := $(shell echo $(ARCH) | tr '[a-z]' '[A-Z]')
@@ -105,13 +107,13 @@ ec2/%-image: conf
 	$(eval vendor := $(shell basename $*))
 	$(eval license := $(shell dirname $*))
 
-	./bin/debian-cloud-images build --build-type official --build-id b0 --version $(VERSION) --version-date $(TS) $(REPOSITORY)-$(PROJECT) ec2 $(ARCH) $(license)
-	rename "s/$(TS_DCI)/$(TS)/" debian-$(REPOSITORY)-$(PROJECT)*
+	./bin/debian-cloud-images build --build-type official --build-id b0 --version $(call AZURE_NAMING,$(VERSION)) --version-date $(TS) $(REPOSITORY)-$(PROJECT) ec2 $(ARCH) $(license)
+	rename "s/$(TS_DCI)/$(TS)/i" debian-$(REPOSITORY)-$(PROJECT)*
 
 ec2/%-push:
 	$(eval vendor := $(shell basename $*))
 	$(eval license := $(shell dirname $*))
-	$(eval dci_base_name := debian-$(REPOSITORY)-$(PROJECT)-ec2-$(license)-$(ARCH)-official-$(VERSION)-$(TS))
+	$(eval dci_base_name := debian-$(REPOSITORY)-$(PROJECT)-ec2-$(license)-$(ARCH)-official-$(call AZURE_NAMING,$(VERSION))-$(TS))
 
 	./bin/debian-cloud-images upload-ec2 --debug --variant release --config-file ngfw.yaml $(dci_base_name).build.json
 	./share-ami.sh $(dci_base_name).upload-ec2.json
@@ -122,16 +124,16 @@ ec2/%-push:
 azure/%-image: conf
 	$(eval vendor := $(shell basename $*))
 	$(eval license := $(shell dirname $*))
+	$(eval azure_naming := $(shell echo dirname $*))
 
-	./bin/debian-cloud-images build --build-type official --build-id b0 --version $(VERSION) --version-date $(TS) $(REPOSITORY)-$(PROJECT) azure $(ARCH) $(license)
-	rename "s/$(TS_DCI)/$(TS)/" debian-$(REPOSITORY)-$(PROJECT)*
+	./bin/debian-cloud-images build --build-type official --build-id b0 --version $(call AZURE_NAMING,$(VERSION)) --version-date $(TS) $(REPOSITORY)-$(PROJECT) azure $(ARCH) $(license)
+	rename "s/$(TS_DCI)/$(TS)/i" debian-$(REPOSITORY)-$(PROJECT)*
 
 azure/%-push:
 	$(eval vendor := $(shell basename $*))
 	$(eval license := $(shell dirname $*))
-	$(eval dci_base_name := debian-$(REPOSITORY)-$(PROJECT)-azure-$(license)-$(ARCH)-official-$(VERSION)-$(TS))
+	$(eval dci_base_name := debian-$(REPOSITORY)-$(PROJECT)-azure-$(license)-$(ARCH)-official-$(call AZURE_NAMING,$(VERSION))-$(TS))
 
 	./bin/debian-cloud-images upload-azure --debug --variant release --config-file ngfw.yaml $(dci_base_name).build.json
-	./share-ami.sh $(dci_base_name).upload-azure.json
 
 	scp $(dci_base_name).tar $(dci_base_name).info $(dci_base_name).build.junit.xml $(dci_base_name).build.json $(dci_base_name).upload-azure.json $(NETBOOT_USER)@$(NETBOOT_HOST):$(IMAGES_DIR)/$(VERSION)/

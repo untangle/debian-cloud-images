@@ -6,3 +6,14 @@ ec2:
       - us-east-1
   storage:
     name: untangle-ngfw-snapshots
+
+azure:
+  auth:
+    client: 4b28eb29-fc27-4af1-979e-2c23863f3e68
+  image:
+    tenant: 917945dd-0951-4050-9216-7fb9bf18ab95
+    group: UntangleAzureDeploy
+  storage:
+    tenant: 917945dd-0951-4050-9216-7fb9bf18ab95
+    group: UntangleAzureDeploy
+    name: untangledeploy
