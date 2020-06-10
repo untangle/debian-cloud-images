@@ -106,6 +106,12 @@ class BaseCommand:
         self.__config_env_compat(
             ret, 'AWS_SECRET_ACCESS_KEY', 'ec2.auth.secret')
         self.__config_env_compat(
+            ret, 'AZURE_AUTH_SECRET', 'azure.auth.secret')
+        self.__config_env_compat(
+            ret, 'AZURE_IMAGE_SUBSCRIPTION_ID', 'azure.image.subscription')
+        self.__config_env_compat(
+            ret, 'AZURE_STORAGE_SUBSCRIPTION_ID', 'azure.storage.subscription')
+        self.__config_env_compat(
             ret, 'GOOGLE_APPLICATION_CREDENTIALS', 'gce.auth.credentialsfile')
 
         for k, v in os.environ.items():
