@@ -39,6 +39,9 @@ services:
         PACKAGE_SERVER_IP: ${PACKAGE_SERVER_IP:-10.112.11.105}
         AWS_ACCESS_KEY_ID:
         AWS_SECRET_ACCESS_KEY:
+        AZURE_AUTH_SECRET:
+        AZURE_IMAGE_SUBSCRIPTION_ID:
+        AZURE_STORAGE_SUBSCRIPTION_ID:
       privileged: ${PRIVILEGED:-true}
       extra_hosts:
         # from the outside, pass package-server's outside IP instead
