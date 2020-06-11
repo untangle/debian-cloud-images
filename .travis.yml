@@ -64,6 +64,12 @@ jobs:
         - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw  azure/byol/untangle-image azure/byol/untangle-push"
       if: type = api
 
+    - stage: build azure/payg
+      script:
+        - docker-compose -f docker-compose.build.yml run pkgtools
+        - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw  azure/payg/untangle-image azure/payg/untangle-push"
+      if: type = api
+
 notifications:
   email: false
   slack:
