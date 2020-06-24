@@ -111,7 +111,7 @@ ReleaseEnum = enum.Enum(  # type:ignore
         'buster-ngfw': {
             'id': 'ngfw',
             'baseid': 'buster',
-            'fai_classes': ('BUSTER', 'UNTANGLE', 'UNTANGLE_CLIENT_LOCAL'),
+            'fai_classes': ('BUSTER', 'UNTANGLE', 'UNTANGLE_VENDOR_UNTANGLE'),
             'arch_supports_linux_image_cloud': (),
         },
         'buster-backports': {
