@@ -46,6 +46,11 @@ jobs:
         - docker-compose -f docker-compose.build.yml run pkgtools
         - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw ova/untangle-image ova/untangle-push"
 
+    - stage: build vendor1 ova
+      script:
+        - docker-compose -f docker-compose.build.yml run pkgtools
+        - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw ova/vendor1-image ova/vendor1-push"
+
     - stage: build ec2/byol
       script:
         - docker-compose -f docker-compose.build.yml run pkgtools
