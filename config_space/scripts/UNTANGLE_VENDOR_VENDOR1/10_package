@@ -1,0 +1,3 @@
+#! /bin/bash
+
+$ROOTCMD apt install --force-yes --yes untangle-vendor-vendor1

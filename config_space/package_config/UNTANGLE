@@ -8,7 +8,7 @@ linux-image-4.19.0-8-untangle-amd64
 PACKAGES install-norec ARM64
 linux-image-4.19.0-8-untangle-arm64
 
-PACKAGES install-norec UNTANGLE_CLIENT_LOCAL
+PACKAGES install-norec UNTANGLE_VENDOR_UNTANGLE
 untangle-client-local
 
 PACKAGES install-norec UNTANGLE_LINUX_CONFIG
