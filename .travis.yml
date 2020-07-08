@@ -53,7 +53,7 @@ before_install:
 script:
   - docker-compose -f docker-compose.build.yml run pkgtools
   - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw ${TYPE}/${VENDOR}-image ${TYPE}/${VENDOR}-push"
-#      if: type = api OR NOT env(TYPE) =~ /(ec2|azure)/
+if: type = api OR NOT env(TYPE) =~ /(ec2|azure)/
 
 notifications:
   email: false
