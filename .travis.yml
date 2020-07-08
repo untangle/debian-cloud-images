@@ -56,7 +56,7 @@ before_install:
 
 jobs:
   include:
-    - stage: build & upload
+    - name: build & upload
       script:
         - docker-compose -f docker-compose.build.yml run pkgtools
         - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw ${TYPE}/${VENDOR}-image ${TYPE}/${VENDOR}-push"
