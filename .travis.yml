@@ -28,6 +28,26 @@ env:
     - secure: "gtDfuuZpTJSWayRfJwvP9GM+6IBlv3bkY0sVJGfnOJJZylasLZphY1kIOkRXiRqitsap543RmHI8qXovcVRy5nkZ1WqP/y0+8VBCuiDit7OU5x6iUc4sldJaCj9ePCYdhJozpam6hyypp/A/7MyilffiWAh1FbgfntwXlcJ4SsTypuagiCtjqBGJ56tKQNmGRqdNJxWkZhiP+D9X/MCkwuKJOUOyQNzW8jhqxNc+jhjty0DwJ4q+XIuf4Cpau/cnffl0Epj0OOIS3odUJ8DtbB3iMM0RWCjtD0U3u2k8kmwD8neL81Sc58XedPy3AaN9VMNrN1cxdBAzRhAkJ9uTt0jemDfq5kWB0zpvmqX1waywbNWG6TvKYJ26zwBxt6UjuWIRjq5hLamRLbbqPmvns5GLIR+oG6PnTIi3IMVhqwI0Bz2N6XYFtyhs6kVtpsYhFsSM5qAcKOw1G44Yq9y7giSnj/Wg27c0FIQC+mO9ZwK1RzaDAhl6Hl1YK6ikjiqzLIUMQ4fei0w4BwyjOtEyHAhX2F241/zRJAYXNbjsHydv0L5CY6efOS5nLVWBtg2KvVU7qyIpUm7Gyy8Yf5wBlWl9I4xDov1Hy8W5an+OPzKqIzF1+HoOR4iGUad7k/iBrL+i8aFu5We3zswGci/XPL8ssXy6bh23AVh77ESC1EA="
   jobs:
     - ARCHITECTURE: amd64
+      TYPE: qcow2
+      VENDOR: untangle
+    - ARCHITECTURE: amd64
+      TYPE: ova
+      VENDOR: untangle
+    - ARCHITECTURE: amd64
+      TYPE: ova
+      VENDOR: vendor1
+    - ARCHITECTURE: amd64
+      TYPE: ec2/byol
+      VENDOR: untangle
+    - ARCHITECTURE: amd64
+      TYPE: ec2/payg
+      VENDOR: untangle
+    - ARCHITECTURE: amd64
+      TYPE: azure/byol
+      VENDOR: untangle
+    - ARCHITECTURE: amd64
+      TYPE: azure/payg
+      VENDOR: untangle
 
 before_install:
 - docker pull untangleinc/ngfw:${REPOSITORY}-cloud
@@ -36,44 +56,11 @@ before_install:
 
 jobs:
   include:
-    - stage: build qcow2
+    - stage: build & upload
+      if: type = api OR NOT env(TYPE) =~ /(ec2|azure)/
       script:
         - docker-compose -f docker-compose.build.yml run pkgtools
-        - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw qcow2/untangle-image qcow2/untangle-push"
-
-    - stage: build ova
-      script:
-        - docker-compose -f docker-compose.build.yml run pkgtools
-        - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw ova/untangle-image ova/untangle-push"
-
-    - stage: build vendor1 ova
-      script:
-        - docker-compose -f docker-compose.build.yml run pkgtools
-        - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw ova/vendor1-image ova/vendor1-push"
-
-    - stage: build ec2/byol
-      script:
-        - docker-compose -f docker-compose.build.yml run pkgtools
-        - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw  ec2/byol/untangle-image ec2/byol/untangle-push"
-      if: type = api
-
-    - stage: build ec2/payg
-      script:
-        - docker-compose -f docker-compose.build.yml run pkgtools
-        - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw  ec2/payg/untangle-image ec2/payg/untangle-push"
-      if: type = api
-
-    - stage: build azure/byol
-      script:
-        - docker-compose -f docker-compose.build.yml run pkgtools
-        - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw  azure/byol/untangle-image azure/byol/untangle-push"
-      if: type = api
-
-    - stage: build azure/payg
-      script:
-        - docker-compose -f docker-compose.build.yml run pkgtools
-        - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw  azure/payg/untangle-image azure/payg/untangle-push"
-      if: type = api
+        - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw ${TYPE}/${VENDOR}-image ${TYPE}/${VENDOR}-push"
 
 notifications:
   email: false
