@@ -12,6 +12,9 @@ endif
 ifeq ($(PACKAGE_SERVER_IP),)
 PACKAGE_SERVER_IP := package-server.untangle.int
 endif
+ifeq ($(ARCHITECTURE),)
+ARCHITECTURE := $(shell dpkg-architecture -qDEB_BUILD_ARCH)
+endif
 
 ## shell variables
 export http_proxy=$(shell perl -pe 's/.*"(.*?)".*/$$1/' 2> /dev/null < /etc/apt/apt.conf.d/01proxy)
@@ -29,25 +32,24 @@ LICENSE_CLASS = UNTANGLE_LICENSE_$(call UPPER_CASE,$(1))
 
 ## variables
 PROJECT := ngfw
-ARCH := $(shell dpkg-architecture -qDEB_BUILD_ARCH)
 TS_EPOCH := $(shell date +"%s")
 TS := $(shell date -d @$(TS_EPOCH) +"%Y-%m-%dt%H%M%S")
 TS_DCI := $(shell date -d @$(TS_EPOCH) +"%Y%m%dt%H%M")
 HOST := $(shell hostname -s)
 VERSION ?= $(shell cat $(PKGTOOLS_DIR)/resources/VERSION)
-ARCH_CAPS := $(shell echo $(ARCH) | tr '[a-z]' '[A-Z]')
-TMP_DIR := $(IMGTOOLS_DIR)/tmp-$(REPOSITORY)-$(DISTRIBUTION)-$(ARCH)-$(LICENSE)
+ARCH_CAPS := $(shell echo $(ARCHITECTURE) | tr '[a-z]' '[A-Z]')
+TMP_DIR := $(IMGTOOLS_DIR)/tmp-$(REPOSITORY)-$(DISTRIBUTION)-$(ARCHITECTURE)-$(LICENSE)
 MOUNT_SCRIPT := /data/image-manager/mounts.py
 NETBOOT_HOST := package-server
 NETBOOT_USER := buildbot
 IMAGES_DIR := /data/untangle-images-$(REPOSITORY)
 FAI_COMMON_OPTIONS := --verbose --hostname ngfw --cspace $(IMGTOOLS_DIR)/config_space 
-FAI_COMMON_CLASSES := DEBIAN,CLOUD,$(call UPPER_CASE,$(REPOSITORY)),AMD64,UNTANGLE
+FAI_COMMON_CLASSES := DEBIAN,CLOUD,$(call UPPER_CASE,$(REPOSITORY)),$(call UPPER_CASE,$(ARCHITECTURE)),UNTANGLE
 FAI_LAST_CLASSES := LAST
 UNTANGLE_FAI_CONF := $(IMGTOOLS_DIR)/config_space/class/UNTANGLE.var
 UNTANGLE_FAI_CONF_TPL := $(UNTANGLE_FAI_CONF).tpl
 OVF_FILE_TPL := ngfw.ovf.tpl
-BASE_NAME := $(VERSION)_$(REPOSITORY)_$(ARCH)_$(DISTRIBUTION)_$(TS)_$(HOST)
+BASE_NAME := $(VERSION)_$(REPOSITORY)_$(ARCHITECTURE)_$(DISTRIBUTION)_$(TS)_$(HOST)
 OVF_FILE := $(BASE_NAME).ovf
 OVA_NAME := $(BASE_NAME).ova
 QCOW2_NAME := $(BASE_NAME).qcow2
@@ -83,7 +85,7 @@ qcow2/%-push:
 	$(eval vendor := $*)
 	$(eval vendor_class := $(call VENDOR_CLASS,$*))
 	scp $(PROJECT)-$(vendor)-$(QCOW2_NAME) $(NETBOOT_USER)@$(NETBOOT_HOST):$(IMAGES_DIR)/$(VERSION)/
-	ssh $(NETBOOT_USER)@$(NETBOOT_HOST) "sudo python $(MOUNT_SCRIPT) link $(VERSION) $(TS) $(ARCH) $(REPOSITORY)"
+	ssh $(NETBOOT_USER)@$(NETBOOT_HOST) "sudo python $(MOUNT_SCRIPT) link $(VERSION) $(TS) $(ARCHITECTURE) $(REPOSITORY)"
 
 ## ova
 vmdk/%-image: conf
@@ -100,20 +102,20 @@ ova/%-image: vmdk/%-image
 ova/%-push:
 	$(eval vendor := $*)
 	scp $(PROJECT)-$(vendor)-$(OVA_NAME) $(NETBOOT_USER)@$(NETBOOT_HOST):$(IMAGES_DIR)/$(VERSION)/
-	ssh $(NETBOOT_USER)@$(NETBOOT_HOST) "sudo python $(MOUNT_SCRIPT) link $(VERSION) $(TS) $(ARCH) $(REPOSITORY)"
+	ssh $(NETBOOT_USER)@$(NETBOOT_HOST) "sudo python $(MOUNT_SCRIPT) link $(VERSION) $(TS) $(ARCHITECTURE) $(REPOSITORY)"
 
 ## ec2/<license>/<vendor>-image
 ec2/%-image: conf
 	$(eval vendor := $(shell basename $*))
 	$(eval license := $(shell dirname $*))
 
-	./bin/debian-cloud-images build --build-type official --build-id b0 --version $(call AZURE_NAMING,$(VERSION)) --version-date $(TS) $(REPOSITORY)-$(PROJECT) ec2 $(ARCH) $(license)
+	./bin/debian-cloud-images build --build-type official --build-id b0 --version $(call AZURE_NAMING,$(VERSION)) --version-date $(TS) $(REPOSITORY)-$(PROJECT) ec2 $(ARCHITECTURE) $(license)
 	rename "s/$(TS_DCI)/$(TS)/i" debian-$(REPOSITORY)-$(PROJECT)*
 
 ec2/%-push:
 	$(eval vendor := $(shell basename $*))
 	$(eval license := $(shell dirname $*))
-	$(eval dci_base_name := debian-$(REPOSITORY)-$(PROJECT)-ec2-$(license)-$(ARCH)-official-$(call AZURE_NAMING,$(VERSION))-$(TS))
+	$(eval dci_base_name := debian-$(REPOSITORY)-$(PROJECT)-ec2-$(license)-$(ARCHITECTURE)-official-$(call AZURE_NAMING,$(VERSION))-$(TS))
 
 	./bin/debian-cloud-images upload-ec2 --debug --variant release --config-file ngfw.yaml $(dci_base_name).build.json
 	./share-ami.sh $(dci_base_name).upload-ec2.json
@@ -126,13 +128,13 @@ azure/%-image: conf
 	$(eval license := $(shell dirname $*))
 	$(eval azure_naming := $(shell echo dirname $*))
 
-	./bin/debian-cloud-images build --build-type official --build-id b0 --version $(call AZURE_NAMING,$(VERSION)) --version-date $(TS) $(REPOSITORY)-$(PROJECT) azure $(ARCH) $(license)
+	./bin/debian-cloud-images build --build-type official --build-id b0 --version $(call AZURE_NAMING,$(VERSION)) --version-date $(TS) $(REPOSITORY)-$(PROJECT) azure $(ARCHITECTURE) $(license)
 	rename "s/$(TS_DCI)/$(TS)/i" debian-$(REPOSITORY)-$(PROJECT)*
 
 azure/%-push:
 	$(eval vendor := $(shell basename $*))
 	$(eval license := $(shell dirname $*))
-	$(eval dci_base_name := debian-$(REPOSITORY)-$(PROJECT)-azure-$(license)-$(ARCH)-official-$(call AZURE_NAMING,$(VERSION))-$(TS))
+	$(eval dci_base_name := debian-$(REPOSITORY)-$(PROJECT)-azure-$(license)-$(ARCHITECTURE)-official-$(call AZURE_NAMING,$(VERSION))-$(TS))
 
 	./bin/debian-cloud-images upload-azure --debug --variant release --config-file ngfw.yaml $(dci_base_name).build.json
 
