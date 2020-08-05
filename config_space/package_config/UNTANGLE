@@ -1,9 +1,9 @@
 PACKAGES install-norec
 untangle-gateway
-open-vm-tools
 
 PACKAGES install-norec AMD64
 linux-image-4.19.0-8-untangle-amd64
+open-vm-tools
 
 PACKAGES install-norec ARM64
 linux-image-4.19.0-8-untangle-arm64
