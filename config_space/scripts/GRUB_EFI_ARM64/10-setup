@@ -2,5 +2,7 @@
 
 set -euE
 
+$ROOTCMD perl -i -pe 's|"$| net.ifnames=0"| if m/^GRUB_CMDLINE_LINUX/' /etc/default/grub
+
 $ROOTCMD grub-install --target=arm64-efi --removable
 $ROOTCMD update-grub
