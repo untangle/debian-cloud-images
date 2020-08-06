@@ -48,12 +48,6 @@ env:
     - ARCHITECTURE: amd64
       TYPE: azure/payg
       VENDOR: untangle
-    - ARCHITECTURE: arm64
-      TYPE: qcow2
-      VENDOR: untangle
-    - ARCHITECTURE: arm64
-      TYPE: ova
-      VENDOR: untangle
 
 before_install:
 - docker pull untangleinc/ngfw:${REPOSITORY}-cloud
@@ -61,8 +55,6 @@ before_install:
 - chmod 600 ${SSH_KEY}
 
 script:
-  - sudo apt install -y qemu-user-static binfmt-support
-  - sudo apt install -y qemu-system-arm
   - docker-compose -f docker-compose.build.yml run pkgtools
   - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw ${TYPE}/${VENDOR}-image ${TYPE}/${VENDOR}-push"
 if: type = api OR NOT env(TYPE) =~ /(ec2|azure)/

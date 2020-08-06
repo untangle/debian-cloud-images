@@ -10,10 +10,7 @@ RUN apt update -q
 
 RUN apt install -y fai-server
 RUN apt install -y fai-setup-storage
-RUN apt install -y qemu-user-static
 RUN apt install -y qemu-utils
-RUN apt install -y binfmt-support
-RUN apt install -y qemu-system-arm
 RUN apt install -y build-essential
 RUN apt install -y ca-certificates
 RUN apt install -y debsums
@@ -26,6 +23,7 @@ RUN apt install -y python3-libcloud
 RUN apt install -y python3-marshmallow
 RUN apt install -y python3-pytest
 RUN apt install -y python3-yaml
+RUN apt install -y qemu-utils
 RUN apt install -y udev
 RUN apt install -y procps
 RUN apt install -y sudo
