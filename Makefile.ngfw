@@ -80,7 +80,7 @@ conf: # FAI conf for main class
 raw/%-image: conf
 	$(eval vendor := $*)
 	$(eval vendor_class := $(call VENDOR_CLASS,$*))
-	/usr/sbin/fai-diskimage $(FAI_COMMON_OPTIONS) --class $(FAI_COMMON_CLASSES),$(vendor_class),$(FAI_EXTRA_CLASSES),$(FAI_LAST_CLASSES) --size $(DEFAULT_SIZE)G $(PROJECT)-$(vendor)-$(RAW_NAME)
+	/usr/sbin/fai-diskimage $(FAI_COMMON_OPTIONS) --class $(FAI_COMMON_CLASSES),$(vendor_class),$(FAI_EXTRA_CLASSES),$(FAI_LAST_CLASSES) --size $(DEFAULT_SIZE)G $(PROJECT)-$(vendor)-$(RAW_NAME) || cat /tmp/fai-diskimage*/debootstrap/debootstrap.log
 
 ## qcow2
 qcow2/%-image: conf
