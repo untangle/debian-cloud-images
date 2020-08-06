@@ -61,7 +61,7 @@ before_install:
 - chmod 600 ${SSH_KEY}
 
 script:
-  - apt install -y qemu-user-static
+  - sudo apt install -y qemu-user-static
   - docker-compose -f docker-compose.build.yml run pkgtools
   - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw ${TYPE}/${VENDOR}-image ${TYPE}/${VENDOR}-push"
 if: type = api OR NOT env(TYPE) =~ /(ec2|azure)/
