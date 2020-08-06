@@ -48,6 +48,12 @@ env:
     - ARCHITECTURE: amd64
       TYPE: azure/payg
       VENDOR: untangle
+    - ARCHITECTURE: arm64
+      TYPE: qcow2
+      VENDOR: untangle
+    - ARCHITECTURE: arm64
+      TYPE: ova
+      VENDOR: untangle
 
 before_install:
 - docker pull untangleinc/ngfw:${REPOSITORY}-cloud
