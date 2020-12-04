@@ -25,6 +25,7 @@ class v1alpha1_ToolConfigAzureStorageSchema(Schema):
     name = fields.Str()
     subscription = fields.UUID()
     tenant = fields.UUID()
+    subdirectory = fields.Str()
 
 
 class v1alpha1_ToolConfigAzureSchema(Schema):
