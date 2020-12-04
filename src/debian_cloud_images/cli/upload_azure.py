@@ -1,5 +1,6 @@
 import http.client
 import logging
+import os.path
 
 from collections import namedtuple
 from libcloud.storage.drivers.azure_blobs import AzureBlobLease
@@ -14,7 +15,7 @@ from ..utils.libcloud.storage.azure_arm import AzureResourceManagementStorageDri
 
 AzureAuth = namedtuple('AzureAuth', ('client', 'secret'))
 AzureImage = namedtuple('AzureImage', ('tenant', 'subscription', 'group'))
-AzureStorage = namedtuple('AzureStorage', ('tenant', 'subscription', 'group', 'name'))
+AzureStorage = namedtuple('AzureStorage', ('tenant', 'subscription', 'group', 'name', 'subdirectory'))
 
 
 class ImageUploaderAzure:
@@ -63,10 +64,10 @@ class ImageUploaderAzure:
 
     def __call__(self, image, public_info):
         image_name = public_info.vendor_name63
-        image_file = '{}/disk.vhd'.format(image_name)
+        image_file = '{}.vhd'.format(os.path.join(self.storage.subdirectory, image_name))
         image_url = 'https://{}/{}'.format(self.storage_obj.connection.host, image_file)
 
-        self.create_container(image_name)
+        # self.create_container(container_name)
         self.upload_file(image, image_file)
         image_id = self.create_image(image, image_name, image_url)
 
@@ -81,7 +82,7 @@ class ImageUploaderAzure:
 
         image.write_manifests('upload-azure', manifests, output=self.output)
 
-        self.delete_container(image_name)
+        # self.delete_container(image_name)
 
     def create_container(self, container):
         logging.info('Creating container %s', container)
@@ -185,6 +186,7 @@ config options:
   azure.storage.subscription
   azure.storage.group
   azure.storage.name
+  azure.storage.subdirectory
 '''
 
     @classmethod
@@ -216,6 +218,7 @@ config options:
             subscription=str(self.config_get('azure.storage.subscription')),
             group=self.config_get('azure.storage.group'),
             name=self.config_get('azure.storage.name'),
+            subdirectory=self.config_get('azure.storage.subdirectory', ''),
         )
 
         self.uploader = ImageUploaderAzure(

@@ -33,7 +33,7 @@ LICENSE_CLASS = UNTANGLE_LICENSE_$(call UPPER_CASE,$(1))
 ## variables
 PROJECT := ngfw
 TS_EPOCH := $(shell date +"%s")
-TS := $(shell date -d @$(TS_EPOCH) +"%Y-%m-%dt%H%M%S")
+TS ?= $(shell date -d @$(TS_EPOCH) +"%Y-%m-%dt%H%M%S")
 TS_DCI := $(shell date -d @$(TS_EPOCH) +"%Y%m%dt%H%M")
 HOST := $(shell hostname -s)
 VERSION ?= $(shell cat $(PKGTOOLS_DIR)/resources/VERSION)

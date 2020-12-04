@@ -17,3 +17,4 @@ azure:
     tenant: 917945dd-0951-4050-9216-7fb9bf18ab95
     group: UntangleAzureDeploy
     name: untangledeploy
+    subdirectory: untangle-vhd
