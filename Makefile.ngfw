@@ -91,6 +91,7 @@ qcow2/%-image: conf
 qcow2/%-push:
 	$(eval vendor := $*)
 	$(eval vendor_class := $(call VENDOR_CLASS,$*))
+	ssh $(NETBOOT_USER)@$(NETBOOT_HOST) "sudo python $(MOUNT_SCRIPT) new $(VERSION) $(TS) $(ARCHITECTURE) $(REPOSITORY)"
 	scp $(PROJECT)-$(vendor)-$(QCOW2_NAME) $(NETBOOT_USER)@$(NETBOOT_HOST):$(IMAGES_DIR)/$(VERSION)/
 	ssh $(NETBOOT_USER)@$(NETBOOT_HOST) "sudo python $(MOUNT_SCRIPT) link $(VERSION) $(TS) $(ARCHITECTURE) $(REPOSITORY)"
 
@@ -108,6 +109,7 @@ ova/%-image: vmdk/%-image
 
 ova/%-push:
 	$(eval vendor := $*)
+	ssh $(NETBOOT_USER)@$(NETBOOT_HOST) "sudo python $(MOUNT_SCRIPT) new $(VERSION) $(TS) $(ARCHITECTURE) $(REPOSITORY)"
 	scp $(PROJECT)-$(vendor)-$(OVA_NAME) $(NETBOOT_USER)@$(NETBOOT_HOST):$(IMAGES_DIR)/$(VERSION)/
 	ssh $(NETBOOT_USER)@$(NETBOOT_HOST) "sudo python $(MOUNT_SCRIPT) link $(VERSION) $(TS) $(ARCHITECTURE) $(REPOSITORY)"
 
@@ -127,6 +129,7 @@ ec2/%-push:
 	./bin/debian-cloud-images upload-ec2 --debug --variant release --config-file ngfw.yaml $(dci_base_name).build.json
 	./share-ami.sh $(dci_base_name).upload-ec2.json
 
+	ssh $(NETBOOT_USER)@$(NETBOOT_HOST) "sudo python $(MOUNT_SCRIPT) new $(VERSION) $(TS) $(ARCHITECTURE) $(REPOSITORY)"
 	scp $(dci_base_name).tar $(dci_base_name).info $(dci_base_name).build.junit.xml $(dci_base_name).build.json $(dci_base_name).upload-ec2.json $(NETBOOT_USER)@$(NETBOOT_HOST):$(IMAGES_DIR)/$(VERSION)/
 
 ## azure/<license>/<vendor>-image
@@ -145,4 +148,5 @@ azure/%-push:
 
 	./bin/debian-cloud-images upload-azure --debug --variant release --config-file ngfw.yaml $(dci_base_name).build.json
 
+	ssh $(NETBOOT_USER)@$(NETBOOT_HOST) "sudo python $(MOUNT_SCRIPT) new $(VERSION) $(TS) $(ARCHITECTURE) $(REPOSITORY)"
 	scp $(dci_base_name).tar $(dci_base_name).info $(dci_base_name).build.junit.xml $(dci_base_name).build.json $(dci_base_name).upload-azure.json $(NETBOOT_USER)@$(NETBOOT_HOST):$(IMAGES_DIR)/$(VERSION)/
