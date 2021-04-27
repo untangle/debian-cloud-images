@@ -10,7 +10,10 @@ services:
 
 env:
   global:
-    - SSH_KEY: /tmp/travis-buildbot.rsa
+    # DOCKER_PASSWORD
+    - secure: "h2VLkq6zGpVWlvS0bQgcvVQjYmq+xgcweuihFiaFmpvzarASPCzW/T8WlCril90BMP8WKhG9N5zFGCe1VBSuFwzUxpalqQL7w9vXFepqIb67MjXmGDVXsYmXOqJfB7g2J9E1x/lfZrOR+OmqAZeV6xT6LbMIXbS60D/8ks1waJKvLWNG64MUa74JKZAkHeEUle+medhwilR3Raz4G7Wl6RhAvjwzDTu42/Ac5WLWUZHCGbZZp2jwJPOoWvPwGk9biwQw7oyl5M9fKSB2iodbvQbKrXGR+AS9OvAl/Jl/xAfZ7Rz823RriNbb3MpHLTjHwkuD8rXfgdga7hWi4Wh14bTMKywfc3VO1W8RVsgKvX2+xkFfuWkanwkFxHyMnL77+V1E101p7gpdhY6yuLzSi9UWGYM60QoVNg6IIuWo6kvEfB5V+rFwEmVTSQDZc0s5vfG/WBtye1QzvWcJbEWxYS6TchkJ+f/ZMk2V0+cugmO8t3W7AfZA+JGKr9pOMhhTonWCgg00r+/kgYZNa9dNAUNrLaY3gPfT+xjWx9bjdIPUBaqKjApLGCWHvLpgWZGFndZcAFJQRvdyHTvkirU9sftoR+rq528IETdtnhMZ+pBOB9yrFCduXZL2gsFXa6XHFWbh+ijkrDzJ+pdrPjy69oMRJgSMg4S9RH6oQs5bz1g="
+    - DOCKER_USERNAME: untangleengineering
+      SSH_KEY: /tmp/travis-buildbot.rsa
       PACKAGE_SERVER_IP: 50.211.244.129
       REPOSITORY: buster
       PKGTOOLS_COMMIT: origin/${TRAVIS_BRANCH}
@@ -62,6 +65,7 @@ env:
       VENDOR: untangle
 
 before_install:
+- echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 - docker pull untangleinc/ngfw:${REPOSITORY}-cloud
 - openssl aes-256-cbc -K $encrypted_c3a944c0ebdd_key -iv $encrypted_c3a944c0ebdd_iv -in .travis/buildbot.rsa.enc -out ${SSH_KEY} -d
 - chmod 600 ${SSH_KEY}
