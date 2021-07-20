@@ -71,6 +71,7 @@ before_install:
 - chmod 600 ${SSH_KEY}
 
 script:
+  - sudo apt update
   - sudo apt install -y qemu-user-static binfmt-support
   - docker-compose -f docker-compose.build.yml run pkgtools
   - docker-compose -f docker-compose.build.yml run build bash -c "../ngfw_pkgtools/build.sh setup-only && make -f Makefile.ngfw ${TYPE}/${VENDOR}-image ${TYPE}/${VENDOR}-push"
