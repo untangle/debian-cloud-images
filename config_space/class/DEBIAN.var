@@ -1,4 +1,4 @@
-apt_cdn=http://deb.debian.org
+apt_cdn=http://ftp.us.debian.org
 security_cdn=http://security.debian.org
 KEYMAP=utf-8
 CONSOLEFONT=
