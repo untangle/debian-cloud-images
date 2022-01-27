@@ -34,12 +34,6 @@ env:
       TYPE: qcow2
       VENDOR: untangle
     - ARCHITECTURE: amd64
-      TYPE: ova
-      VENDOR: untangle
-    - ARCHITECTURE: amd64
-      TYPE: ova
-      VENDOR: vendor1
-    - ARCHITECTURE: amd64
       TYPE: ec2/byol
       VENDOR: untangle
     - ARCHITECTURE: amd64
@@ -53,9 +47,6 @@ env:
       VENDOR: untangle
     - ARCHITECTURE: arm64
       TYPE: qcow2
-      VENDOR: untangle
-    - ARCHITECTURE: arm64
-      TYPE: ova
       VENDOR: untangle
     - ARCHITECTURE: arm64
       TYPE: ec2/byol
