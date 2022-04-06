@@ -1,9 +1,16 @@
-#!/bin/sh
+#!/bin/bash
 set -eux
 
 export PYTHONPATH=src
 
+# Cleanup mounts before running tests
+umount -l $FAI_ROOT/dev
+umount -l $FAI_ROOT/proc
+umount -l $FAI_ROOT/run
+umount -l $FAI_ROOT/sys
+
 exec pytest-3 \
+  -c "${CLOUD_BUILD_DATA}/system_tests/pytest.ini" \
   -p debian_cloud_images.test.pytest.mount \
   -vrxXs \
   -k'not test_passwd_name and not test_passwd_shell and not test_passwd_uid and not test_var_log' \

@@ -9,3 +9,7 @@ untangle-hardware-ec2-byol
 
 PACKAGES install-norec UNTANGLE_LICENSE_PAYG
 untangle-hardware-ec2-payg
+
+PACKAGES install-norec BULLSEYE BOOKWORM SID
+amazon-ec2-utils
+

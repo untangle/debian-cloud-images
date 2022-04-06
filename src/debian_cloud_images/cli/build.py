@@ -29,7 +29,8 @@ class Arch:
 
 class Release:
     def __init__(self, kw):
-        def init(*, id, baseid, fai_classes, arch_supports_linux_image_cloud):
+        def init(*, basename, id, baseid, fai_classes, arch_supports_linux_image_cloud):
+            self.basename = basename
             self.id = id
             self.baseid = baseid
             self.fai_classes = fai_classes
@@ -90,19 +91,8 @@ ReleaseEnum = enum.Enum(  # type:ignore
                           # mypy is not able to parse functional Enum properly
     'ReleaseEnum',
     {
-        'stretch': {
-            'id': '9',
-            'baseid': '9',
-            'fai_classes': ('STRETCH', ),
-            'arch_supports_linux_image_cloud': (),
-        },
-        'stretch-backports': {
-            'id': '9-backports',
-            'baseid': '9',
-            'fai_classes': ('STRETCH', 'BACKPORTS_LINUX'),
-            'arch_supports_linux_image_cloud': ("amd64",),
-        },
         'buster': {
+            'basename': 'buster',
             'id': '10',
             'baseid': '10',
             'fai_classes': ('BUSTER', 'EXTRAS'),
@@ -114,23 +104,40 @@ ReleaseEnum = enum.Enum(  # type:ignore
             'fai_classes': ('BUSTER', 'UNTANGLE', 'UNTANGLE_VENDOR_UNTANGLE', 'UNTANGLE_LINUX_CONFIG'),
             'arch_supports_linux_image_cloud': (),
         },
+        'buster+pu': {
+            'basename': 'buster',
+            'id': '10',
+            'baseid': '10',
+            'fai_classes': ('BUSTER', 'BUSTER_PU', 'EXTRAS'),
+            'arch_supports_linux_image_cloud': ('amd64',),
+        },
         'buster-backports': {
+            'basename': 'buster-backports',
             'id': '10-backports',
             'baseid': '10',
             'fai_classes': ('BUSTER', 'BACKPORTS_LINUX', 'EXTRAS'),
-            'arch_supports_linux_image_cloud': ('amd64',),
+            'arch_supports_linux_image_cloud': ('amd64', 'arm64',),
         },
         'bullseye': {
+            'basename': 'bullseye',
             'id': '11',
             'baseid': '11',
-            'fai_classes': ('BULLSEYE', ),
-            'arch_supports_linux_image_cloud': ('amd64',),
+            'fai_classes': ('BULLSEYE', 'EXTRAS'),
+            'arch_supports_linux_image_cloud': ('amd64', 'arm64',),
+        },
+        'bookworm': {
+            'basename': 'bookworm',
+            'id': '12',
+            'baseid': '12',
+            'fai_classes': ('BOOKWORM', 'EXTRAS'),
+            'arch_supports_linux_image_cloud': ('amd64', 'arm64',),
         },
         'sid': {
+            'basename': 'sid',
             'id': 'sid',
             'baseid': 'sid',
             'fai_classes': ('SID', 'EXTRAS'),
-            'arch_supports_linux_image_cloud': ('amd64',),
+            'arch_supports_linux_image_cloud': ('amd64', 'arm64',),
         },
     },
     type=Release,
@@ -270,7 +277,7 @@ class Check:
 
     def set_release(self, release):
         self.release = release
-        self.info['release'] = self.release.name
+        self.info['release'] = self.release.basename
         self.info['release_id'] = self.release.id
         self.info['release_baseid'] = self.release.baseid
         self.classes |= self.release.fai_classes

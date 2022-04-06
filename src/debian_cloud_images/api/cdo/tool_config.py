@@ -38,6 +38,7 @@ class v1alpha1_ToolConfigAzureSchema(Schema):
 class v1alpha1_ToolConfigEc2AuthSchema(Schema):
     key = fields.Str()
     secret = fields.Str()
+    token = fields.Str()
 
 
 class v1alpha1_ToolConfigEc2ImageSchema(Schema):
@@ -49,10 +50,15 @@ class v1alpha1_ToolConfigEc2StorageSchema(Schema):
     name = fields.Str()
 
 
+class v1alpha1_ToolConfigEc2SSMSchema(Schema):
+    prefix = fields.Str()
+
+
 class v1alpha1_ToolConfigEc2Schema(Schema):
     auth = fields.Nested(v1alpha1_ToolConfigEc2AuthSchema)
     image = fields.Nested(v1alpha1_ToolConfigEc2ImageSchema)
     storage = fields.Nested(v1alpha1_ToolConfigEc2StorageSchema)
+    ssm = fields.Nested(v1alpha1_ToolConfigEc2SSMSchema)
 
 
 class v1alpha1_ToolConfigGceAuthSchema(Schema):

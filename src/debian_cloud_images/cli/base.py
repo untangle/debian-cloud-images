@@ -112,6 +112,8 @@ class BaseCommand:
         self.__config_env_compat(
             ret, 'AZURE_STORAGE_SUBSCRIPTION_ID', 'azure.storage.subscription')
         self.__config_env_compat(
+            ret, 'AWS_SESSION_TOKEN', 'ec2.auth.token')
+        self.__config_env_compat(
             ret, 'GOOGLE_APPLICATION_CREDENTIALS', 'gce.auth.credentialsfile')
 
         for k, v in os.environ.items():
