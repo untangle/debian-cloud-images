@@ -98,12 +98,6 @@ ReleaseEnum = enum.Enum(  # type:ignore
             'fai_classes': ('BUSTER', 'EXTRAS'),
             'arch_supports_linux_image_cloud': ('amd64',),
         },
-        'buster-ngfw': {
-            'id': 'ngfw',
-            'baseid': 'buster',
-            'fai_classes': ('BUSTER', 'UNTANGLE', 'UNTANGLE_VENDOR_UNTANGLE', 'UNTANGLE_LINUX_CONFIG'),
-            'arch_supports_linux_image_cloud': (),
-        },
         'buster+pu': {
             'basename': 'buster',
             'id': '10',
@@ -124,6 +118,13 @@ ReleaseEnum = enum.Enum(  # type:ignore
             'baseid': '11',
             'fai_classes': ('BULLSEYE', 'EXTRAS'),
             'arch_supports_linux_image_cloud': ('amd64', 'arm64',),
+        },
+        'bullseye-ngfw': {
+            'basename': 'bullseye',
+            'id': 'ngfw',
+            'baseid': 'bullseye',
+            'fai_classes': ('BULLSEYE', 'UNTANGLE', 'UNTANGLE_VENDOR_UNTANGLE', 'UNTANGLE_LINUX_CONFIG'),
+            'arch_supports_linux_image_cloud': ('amd64', 'arm64'),
         },
         'bookworm': {
             'basename': 'bookworm',
