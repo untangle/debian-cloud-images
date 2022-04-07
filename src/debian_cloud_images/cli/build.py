@@ -1,6 +1,5 @@
 import argparse
 import collections.abc
-import enum
 import json
 import logging
 import pathlib
@@ -13,7 +12,7 @@ from .base import BaseCommand
 from ..build.fai import RunFAI
 from ..build.manifest import CreateManifest
 from ..build.tar import RunTar
-from ..data import data_path
+from ..resources import path as resources_path
 from ..utils import argparse_ext
 
 
@@ -59,13 +58,6 @@ class BuildType:
             self.output_name = output_name
             self.output_version = output_version
             self.output_version_azure = output_version_azure
-        init(**kw)
-
-
-class License:
-    def __init__(self, kw):
-        def init(*, fai_classes):
-            self.fai_classes = fai_classes
         init(**kw)
 
 
@@ -119,20 +111,6 @@ ReleaseEnum = enum.Enum(  # type:ignore
             'fai_classes': ('BULLSEYE', 'EXTRAS'),
             'arch_supports_linux_image_cloud': ('amd64', 'arm64',),
         },
-        'bullseye-ngfw': {
-            'basename': 'bullseye',
-            'id': 'ngfw',
-            'baseid': 'bullseye',
-            'fai_classes': ('BULLSEYE', 'UNTANGLE', 'UNTANGLE_VENDOR_UNTANGLE', 'UNTANGLE_LINUX_CONFIG'),
-            'arch_supports_linux_image_cloud': ('amd64', 'arm64'),
-        },
-        'bookworm': {
-            'basename': 'bookworm',
-            'id': '12',
-            'baseid': '12',
-            'fai_classes': ('BOOKWORM', 'EXTRAS'),
-            'arch_supports_linux_image_cloud': ('amd64', 'arm64',),
-        },
         'sid': {
             'basename': 'sid',
             'id': 'sid',
@@ -151,12 +129,12 @@ VendorEnum = enum.Enum(  # type:ignore
     {
         'azure': {
             'fai_size': '30G',
-            'fai_classes': ('AZURE', ),
+            'fai_classes': ('AZURE', 'IPV6_DHCP'),
             'use_linux_image_cloud': True,
         },
         'ec2': {
             'fai_size': '8G',
-            'fai_classes': ('EC2', ),
+            'fai_classes': ('EC2', 'IPV6_DHCP'),
             'use_linux_image_cloud': True,
         },
         'gce': {
@@ -177,34 +155,8 @@ VendorEnum = enum.Enum(  # type:ignore
             'fai_size': '2G',
             'fai_classes': ('NOCLOUD', ),
         },
-        'default': {
-            'fai_size': '10G',
-            'fai_classes': (),
-        },
-        'ova': {
-            'fai_size': '320G',
-            'fai_classes': (),
-        },
     },
     type=Vendor,
-)
-
-
-LicenseEnum = enum.Enum(  # type:ignore
-                          # mypy is not able to parse functional Enum properly
-    'LicenseEnum',
-    {
-        'none': {
-            'fai_classes': (),
-        },
-        'byol': {
-            'fai_classes': ('UNTANGLE_LICENSE_BYOL',),
-        },
-        'payg': {
-            'fai_classes': ('UNTANGLE_LICENSE_PAYG',),
-        },
-    },
-    type=License,
 )
 
 
@@ -214,21 +166,23 @@ BuildTypeEnum = enum.Enum(  # type:ignore
     {
         'dev': {
             'fai_classes': ('TYPE_DEV', ),
-            'output_name': 'debian-{release}-{vendor}-{license}-{arch}-{build_type}-{build_id}-{version}',
+            'output_name': 'debian-{release}-{vendor}-{arch}-{build_type}-{build_id}-{version}',
             'output_version': '{version}',
             'output_version_azure': '0.0.{version!s}',
         },
         'official': {
             'fai_classes': (),
-            'output_name': 'debian-{release}-{vendor}-{license}-{arch}-{build_type}-{version}',
-            'output_version': '{version}-{date}',
-            'output_version_azure': '{version!s}.{date!s}',
+            'output_name': 'debian-{release}-{vendor}-{arch}-{build_type}-{version}',
+            'output_version': '{date}-{version}',
+            'output_version_azure': '0.{date!s}.{version!s}',
         },
     },
     type=BuildType,
 )
 
 
+=======
+>>>>>>> salsa/master
 class BuildId:
     re = re.compile(r"^[a-z][a-z0-9-]+$")
 
@@ -262,6 +216,15 @@ class Classes(collections.abc.MutableSet):
         logger.info('Removing class %s', v)
         self.__data.remove(v)
 
+    def update_combine(self, *others):
+        new = []
+        for other in others:
+            for o in other:
+                for i in self.__data:
+                    new.append('+'.join((i, o)))
+                new.append(o)
+        self.__data.extend(new)
+
 
 class Check:
     def __init__(self):
@@ -274,24 +237,24 @@ class Check:
     def set_type(self, _type):
         self.type = _type
         self.info['type'] = self.type.name
-        self.classes |= self.type.fai_classes
+        self.classes.update_combine(self.type.fai_classes)
 
     def set_release(self, release):
         self.release = release
         self.info['release'] = self.release.basename
         self.info['release_id'] = self.release.id
         self.info['release_baseid'] = self.release.baseid
-        self.classes |= self.release.fai_classes
+        self.classes.update_combine(self.release.fai_classes)
 
     def set_vendor(self, vendor):
         self.vendor = vendor
         self.env['CLOUD_RELEASE_ID'] = self.info['vendor'] = self.vendor.name
-        self.classes |= self.vendor.fai_classes
+        self.classes.update_combine(self.vendor.fai_classes)
 
     def set_arch(self, arch):
         self.arch = arch
-        self.info['arch'] = self.arch.name
-        self.classes |= self.arch.fai_classes
+        self.info['arch'] = arch.name
+        self.classes.update_combine(arch.fai_classes)
 
     def set_version(self, version, version_date, build_id):
         self.build_id = self.info['build_id'] = build_id.id
@@ -315,10 +278,10 @@ class Check:
         self.classes |= self.license.fai_classes
 
     def check(self):
-        # if self.release.supports_linux_image_cloud_for_arch(self.arch.name) and self.vendor.use_linux_image_cloud:
-        #     self.classes.add('LINUX_IMAGE_CLOUD')
-        # else:
-        #     self.classes.add('LINUX_IMAGE_BASE')
+        if self.arch.name in self.release.arch_supports_linux_image_cloud and self.vendor.use_linux_image_cloud:
+            self.classes.add('LINUX_IMAGE_CLOUD')
+        else:
+            self.classes.add('LINUX_IMAGE_BASE')
         self.classes.add('LAST')
 
 
@@ -331,24 +294,18 @@ class BuildCommand(BaseCommand):
     def _argparse_register(cls, parser):
         super()._argparse_register(parser)
 
-        parser.add_argument(
-            'release',
-            action=argparse_ext.ActionEnum,
-            enum=ReleaseEnum,
+        cls.argparser_argument_release = parser.add_argument(
+            'release_name',
             help='Debian release to build',
             metavar='RELEASE',
         )
-        parser.add_argument(
-            'vendor',
-            action=argparse_ext.ActionEnum,
-            enum=VendorEnum,
+        cls.argparser_argument_vendor = parser.add_argument(
+            'vendor_name',
             help='Vendor to build image for',
             metavar='VENDOR',
         )
-        parser.add_argument(
-            'arch',
-            action=argparse_ext.ActionEnum,
-            enum=ArchEnum,
+        cls.argparser_argument_arch = parser.add_argument(
+            'arch_name',
             help='Architecture or sub-architecture to build image for',
             metavar='ARCH',
         )
@@ -366,11 +323,10 @@ class BuildCommand(BaseCommand):
             required=True,
             type=BuildId,
         )
-        parser.add_argument(
+        cls.argparser_argument_build_type = parser.add_argument(
             '--build-type',
-            action=argparse_ext.ActionEnum,
-            enum=BuildTypeEnum,
             default='dev',
+            dest='build_type_name',
             help='Type of image to build',
             metavar='TYPE',
         )
@@ -418,8 +374,33 @@ class BuildCommand(BaseCommand):
             msg = "Given date ({0}) is not valid. Expected format: '%Y-%m-%dT%H%M%S'".format(s)
             raise argparse.ArgumentTypeError(msg)
 
-    def __init__(self, *, release=None, vendor=None, arch=None, version=None, build_id=None, build_type=None, license=None, localdebs=False, output=None, noop=False, override_name=None, version_date=None, **kw):
+    def __init__(self, *, release_name=None, vendor_name=None, arch_name=None, version=None, build_id=None, build_type_name=None, localdebs=False, output=None, noop=False, override_name=None, version_date=None, **kw):
         super().__init__(**kw)
+
+        arch = self.config_image.archs.get(arch_name)
+        build_type = self.config_image.types.get(build_type_name)
+        release = self.config_image.releases.get(release_name)
+        vendor = self.config_image.vendors.get(vendor_name)
+
+        if arch is None:
+            raise argparse.ArgumentError(
+                self.argparser_argument_arch,
+                f'invalid value: {arch_name}, select one of {", ".join(self.config_image.archs)}')
+
+        if build_type is None:
+            raise argparse.ArgumentError(
+                self.argparser_argument_build_type,
+                f'invalid value: {build_type_name}, select one of {", ".join(self.config_image.types)}')
+
+        if vendor is None:
+            raise argparse.ArgumentError(
+                self.argparser_argument_vendor,
+                f'invalid value: {vendor_name}, select one of {", ".join(self.config_image.vendors)}')
+
+        if release is None:
+            raise argparse.ArgumentError(
+                self.argparser_argument_release,
+                f'invalid value: {release_name}, select one of {", ".join(self.config_image.releases)}')
 
         self.noop = noop
 
@@ -448,7 +429,7 @@ class BuildCommand(BaseCommand):
         self.env['CLOUD_BUILD_INFO'] = json.dumps(self.c.info)
         self.env['CLOUD_BUILD_NAME'] = name
         self.env['CLOUD_BUILD_OUTPUT_DIR'] = output.resolve()
-        self.env['CLOUD_BUILD_DATA'] = data_path
+        self.env['CLOUD_BUILD_SYSTEM_TESTS'] = resources_path('system_tests').as_posix()
 
         output.mkdir(parents=True, exist_ok=True)
 
@@ -459,8 +440,9 @@ class BuildCommand(BaseCommand):
 
         self.fai = RunFAI(
             output_filename=image_raw,
+            release=self.c.release.basename,
             classes=self.c.classes,
-            size_gb=self.c.vendor.fai_size,
+            size_gb=self.c.vendor.size,
             env=self.env,
         )
 
