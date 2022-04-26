@@ -11,7 +11,7 @@ function show() {
 }
 
 echo "--- CLOUD RELEASE ---"
-cat ${FAI_ROOT}/etc/cloud-release
+cat ${FAI_ROOT}/etc/cloud-release || true
 echo "--- END CLOUD RELEASE --- "
 echo "--- APT SOURCES.LIST ---"
 if [ -n "${FAI_ROOT}" ] ; then

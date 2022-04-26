@@ -2,5 +2,8 @@
 
 echo "UNTANGLE CLEANUP"
 
+# FIXME: this shouldn't even get started at all
+pkill -f freeradius
+
 rm -fr $target/tmp/* \
       $target/var/tmp/*
