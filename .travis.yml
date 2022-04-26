@@ -15,7 +15,7 @@ env:
     - DOCKER_USERNAME: untangleengineering
       SSH_KEY: /tmp/travis-buildbot.rsa
       PACKAGE_SERVER_IP: 50.211.244.129
-      REPOSITORY: buster
+      REPOSITORY: bullseye
       PKGTOOLS_COMMIT: origin/${TRAVIS_BRANCH}
       UPLOAD: scp
       PRIVILEGED: true
