@@ -11,11 +11,13 @@ class ImageConfig:
         releases=None,
         types=None,
         vendors=None,
+        licenses=None,
     ):
         self.archs = archs
         self.releases = releases
         self.types = types
         self.vendors = vendors
+        self.licenses = licenses
 
 
 class ImageConfigArch:
@@ -30,6 +32,26 @@ class ImageConfigArch:
 
 class v1alpha1_ImageConfigArchSchema(Schema):
     __model__ = ImageConfigArch
+
+    name = fields.Str(required=True)
+    fai_classes = fields.List(fields.Str())
+
+    @post_load
+    def load_obj(self, data, **kw):
+        return self.__model__(**data)
+
+class ImageConfigLicense:
+    def __init__(
+        self,
+        name=None,
+        fai_classes=None,
+    ):
+        self.name = name
+        self.fai_classes = fai_classes
+
+
+class v1alpha1_ImageConfigLicenseSchema(Schema):
+    __model__ = ImageConfigLicense
 
     name = fields.Str(required=True)
     fai_classes = fields.List(fields.Str())
@@ -165,6 +187,7 @@ class v1alpha1_ImageConfigSchema(v1_TypeMetaSchema):
     _releases_list = fields.Nested(v1alpha1_ImageConfigReleaseSchema, data_key='releases', many=True)
     _types_list = fields.Nested(v1alpha1_ImageConfigTypeSchema, data_key='types', many=True)
     _vendors_list = fields.Nested(v1alpha1_ImageConfigVendorSchema, data_key='vendors', many=True)
+    _licenses_list = fields.Nested(v1alpha1_ImageConfigLicenseSchema, data_key='licenses', many=True)
 
     @pre_dump
     def dump_obj(self, obj, **kw):
@@ -173,6 +196,7 @@ class v1alpha1_ImageConfigSchema(v1_TypeMetaSchema):
         data['_releases_list'] = data['releases'].values()
         data['_types_list'] = data['types'].values()
         data['_vendors_list'] = data['vendors'].values()
+        data['_licenses_list'] = data['licenses'].values()
         return data
 
     @post_load
@@ -183,4 +207,5 @@ class v1alpha1_ImageConfigSchema(v1_TypeMetaSchema):
         data['releases'] = {c.name: c for c in data.pop('_releases_list', [])}
         data['types'] = {c.name: c for c in data.pop('_types_list', [])}
         data['vendors'] = {c.name: c for c in data.pop('_vendors_list', [])}
+        data['licenses'] = {c.name: c for c in data.pop('_licenses_list', [])}
         return self.__model__(**data)

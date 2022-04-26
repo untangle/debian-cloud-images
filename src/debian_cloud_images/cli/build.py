@@ -111,7 +111,7 @@ class Check:
     def set_license(self, license):
         self.license = license
         self.info['license'] = self.license.name
-        self.classes |= self.license.fai_classes
+        self.classes.update_combine(self.license.fai_classes)
 
     def check(self):
         if self.arch.name in self.release.arch_supports_linux_image_cloud and self.vendor.use_linux_image_cloud:
@@ -145,11 +145,8 @@ class BuildCommand(BaseCommand):
             help='Architecture or sub-architecture to build image for',
             metavar='ARCH',
         )
-        parser.add_argument(
-            'license',
-            action=argparse_ext.ActionEnum,
-            enum=LicenseEnum,
-            default='none',
+        cls.argparser_argument_license = parser.add_argument(
+            'license_name',
             help='License to use',
             metavar='LICENSE',
         )
@@ -210,13 +207,14 @@ class BuildCommand(BaseCommand):
             msg = "Given date ({0}) is not valid. Expected format: '%Y-%m-%dT%H%M%S'".format(s)
             raise argparse.ArgumentTypeError(msg)
 
-    def __init__(self, *, release_name=None, vendor_name=None, arch_name=None, version=None, build_id=None, build_type_name=None, localdebs=False, output=None, noop=False, override_name=None, version_date=None, **kw):
+    def __init__(self, *, release_name=None, vendor_name=None, license_name=None, arch_name=None, version=None, build_id=None, build_type_name=None, localdebs=False, output=None, noop=False, override_name=None, version_date=None, **kw):
         super().__init__(**kw)
 
         arch = self.config_image.archs.get(arch_name)
         build_type = self.config_image.types.get(build_type_name)
         release = self.config_image.releases.get(release_name)
         vendor = self.config_image.vendors.get(vendor_name)
+        license = self.config_image.licenses.get(license_name)
 
         if arch is None:
             raise argparse.ArgumentError(

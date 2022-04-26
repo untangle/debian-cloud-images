@@ -31,6 +31,12 @@ releases:
   baseid: '11'
   fai_classes: [BULLSEYE, EXTRAS]
   arch_supports_linux_image_cloud: [amd64, arm64]
+- name: bullseye-ngfw
+  basename: bullseye-ngfw
+  id: bullseye-ngfw
+  baseid: '11'
+  fai_classes: [BULLSEYE, UNTANGLE, UNTANGLE_VENDOR_UNTANGLE, UNTANGLE_LINUX_CONFIG]
+  arch_supports_linux_image_cloud: [amd64, arm64]
 - name: bullseye-backports
   basename: bullseye-backports
   id: 11-backports
@@ -58,7 +64,7 @@ releases:
 
 vendors:
 - name: azure
-  fai_classes: [AZURE, IPV6_DHCP]
+  fai_classes: [AZURE]
   size: 30
   use_linux_image_cloud: true
   matches:
@@ -68,7 +74,7 @@ vendors:
     op: Disable
   - matchArches: [arm64]
 - name: ec2
-  fai_classes: [EC2, IPV6_DHCP]
+  fai_classes: [EC2]
   size: 8
   use_linux_image_cloud: true
   matches:
@@ -92,14 +98,22 @@ vendors:
   fai_classes: [NOCLOUD]
   size: 2
 
+licenses:
+- name: none
+  fai_classes: []
+- name: byol
+  fai_classes: [UNTANGLE_LICENSE_BYOL]
+- name: payg
+  fai_classes: [UNTANGLE_LICENSE_PAYG]
+
 types:
 - name: dev
   fai_classes: [TYPE_DEV]
-  output_name: 'debian-{release}-{vendor}-{arch}-{build_type}-{build_id}-{version}'
+  output_name: 'debian-{release}-{vendor}-{license}-{arch}-{build_type}-{build_id}-{version}'
   output_version: '{version}'
   output_version_azure: '0.0.{version!s}'
 - name: official
   fai_classes: []
-  output_name: 'debian-{release}-{vendor}-{arch}-{build_type}-{version}'
+  output_name: 'debian-{release}-{vendor}-{license}-{arch}-{build_type}-{version}'
   output_version: '{date}-{version}'
   output_version_azure: '0.{date!s}.{version!s}'
