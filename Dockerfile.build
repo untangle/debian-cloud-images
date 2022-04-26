@@ -40,6 +40,8 @@ RUN apt install -y jq
 RUN apt install -y tree
 
 RUN sed -i '1179s%umount%#umount%' /usr/share/debootstrap/functions
+RUN perl -i -pe 's/(^|\s+)(ROOTCMD=).+/$1$2"chroot \$NFSROOT"/' /usr/sbin/fai-make-nfsroot
+RUN perl -i -pe 's/(^|\s+)(ROOTCMD=).+/$1$2"chroot \$FAI_ROOT"/' /usr/sbin/fai
 
 ENV SRC=/opt/untangle/build
 RUN mkdir -p ${SRC}
