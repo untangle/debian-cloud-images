@@ -10,7 +10,7 @@ __pycache__/
 /image-*.build.json
 /image-*.build-fai.json
 /image-*.build.junit.xml
-config_space/class/UNTANGLE.var
+config_space/bullseye/class/UNTANGLE.var
 *.log
 *.raw
 *.ovf

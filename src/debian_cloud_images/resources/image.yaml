@@ -32,8 +32,8 @@ releases:
   fai_classes: [BULLSEYE, EXTRAS]
   arch_supports_linux_image_cloud: [amd64, arm64]
 - name: bullseye-ngfw
-  basename: bullseye-ngfw
   id: bullseye-ngfw
+  basename: bullseye
   baseid: '11'
   fai_classes: [BULLSEYE, UNTANGLE, UNTANGLE_VENDOR_UNTANGLE, UNTANGLE_LINUX_CONFIG]
   arch_supports_linux_image_cloud: [amd64, arm64]

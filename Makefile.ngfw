@@ -4,7 +4,7 @@ PKGTOOLS_DIR := $(IMGTOOLS_DIR)/../ngfw_pkgtools
 
 ## overridables
 ifeq ($(REPOSITORY),)
-  REPOSITORY := buster
+  REPOSITORY := bullseye
 endif
 ifeq ($(DISTRIBUTION),)
   DISTRIBUTION := $(shell cat $(PKGTOOLS_DIR)/resources/DISTRIBUTION)
@@ -43,7 +43,7 @@ MOUNT_SCRIPT := /data/image-manager/mounts.py
 NETBOOT_HOST := package-server
 NETBOOT_USER := buildbot
 IMAGES_DIR := /data/untangle-images-$(REPOSITORY)
-FAI_COMMON_OPTIONS := --verbose --hostname ngfw --cspace $(IMGTOOLS_DIR)/config_space
+FAI_COMMON_OPTIONS := --verbose --hostname ngfw --cspace $(IMGTOOLS_DIR)/config_space/$(REPOSITORY)
 ifeq ($(ARCHITECTURE), arm64)
   FAI_GRUB_CLASS := GRUB_EFI_ARM64
   FAI_EXTRA_CLASSES := UNTANGLE
@@ -53,7 +53,7 @@ else
 endif
 FAI_COMMON_CLASSES := DEBIAN,CLOUD,$(call UPPER_CASE,$(REPOSITORY)),$(call UPPER_CASE,$(ARCHITECTURE)),$(FAI_GRUB_CLASS),UNTANGLE
 FAI_LAST_CLASSES := LAST
-UNTANGLE_FAI_CONF := $(IMGTOOLS_DIR)/config_space/class/UNTANGLE.var
+UNTANGLE_FAI_CONF := $(IMGTOOLS_DIR)/config_space/$(REPOSITORY)/class/UNTANGLE.var
 UNTANGLE_FAI_CONF_TPL := $(UNTANGLE_FAI_CONF).tpl
 OVF_FILE_TPL := ngfw.ovf.tpl
 BASE_NAME := $(VERSION)_$(REPOSITORY)_$(ARCHITECTURE)_$(DISTRIBUTION)_$(TS)_$(HOST)
