@@ -39,7 +39,7 @@ RUN apt install -y awscli
 RUN apt install -y jq
 RUN apt install -y tree
 
-#RUN sed -i '1179s%umount%#umount%' /usr/share/debootstrap/functions
+RUN sed -i '1179s%umount%#umount%' /usr/share/debootstrap/functions
 
 ENV SRC=/opt/untangle/build
 RUN mkdir -p ${SRC}
