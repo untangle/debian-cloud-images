@@ -125,7 +125,7 @@ ec2/%-image: conf
 ec2/%-push:
 	$(eval vendor := $(shell basename $*))
 	$(eval license := $(shell dirname $*))
-	$(eval dci_base_name := debian-$(REPOSITORY)-$(PROJECT)-ec2-$(license)-$(ARCHITECTURE)-official-$(call AZURE_NAMING,$(VERSION))-$(TS))
+	$(eval dci_base_name := debian-$(REPOSITORY)-$(PROJECT)-ec2-$(license)-$(ARCHITECTURE)-official-$(TS)-$(call AZURE_NAMING,$(VERSION)))
 
 	./bin/debian-cloud-images upload-ec2 --debug --variant release --config-file ngfw.yaml $(dci_base_name).build.json
 	./share-ami.sh $(dci_base_name).upload-ec2.json
@@ -145,7 +145,7 @@ azure/%-image: conf
 azure/%-push:
 	$(eval vendor := $(shell basename $*))
 	$(eval license := $(shell dirname $*))
-	$(eval dci_base_name := debian-$(REPOSITORY)-$(PROJECT)-azure-$(license)-$(ARCHITECTURE)-official-$(call AZURE_NAMING,$(VERSION))-$(TS))
+	$(eval dci_base_name := debian-$(REPOSITORY)-$(PROJECT)-azure-$(license)-$(ARCHITECTURE)-official-$(TS)-$(call AZURE_NAMING,$(VERSION)))
 
 	./bin/debian-cloud-images upload-azure --debug --variant release --config-file ngfw.yaml $(dci_base_name).build.json
 
