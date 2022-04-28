@@ -4,17 +4,8 @@ cloud-guest-utils
 hyperv-daemons
 waagent
 
-PACKAGES install-norec BUSTER
-# Some waagent extensions still need python2.7, and break when it is not present
-python
-
 PACKAGES install-norec UNTANGLE_LICENSE_BYOL
 untangle-hardware-azure-byol
 
 PACKAGES install-norec UNTANGLE_LICENSE_PAYG
 untangle-hardware-azure-payg
-
-PACKAGES install-norec BULLSEYE SID
-cloud-init
-cloud-guest-utils
-hyperv-daemons/buster-backports
