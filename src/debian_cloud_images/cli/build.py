@@ -114,10 +114,10 @@ class Check:
         self.classes.update_combine(self.license.fai_classes)
 
     def check(self):
-        if self.arch.name in self.release.arch_supports_linux_image_cloud and self.vendor.use_linux_image_cloud:
-            self.classes.add('LINUX_IMAGE_CLOUD')
-        else:
-            self.classes.add('LINUX_IMAGE_BASE')
+        # if self.arch.name in self.release.arch_supports_linux_image_cloud and self.vendor.use_linux_image_cloud:
+        #     self.classes.add('LINUX_IMAGE_CLOUD')
+        # else:
+        #     self.classes.add('LINUX_IMAGE_BASE')
         self.classes.add('LAST')
 
 
