@@ -45,15 +45,15 @@ env:
     - ARCHITECTURE: amd64
       TYPE: azure/payg
       VENDOR: untangle
-    # - ARCHITECTURE: arm64
-    #   TYPE: qcow2
-    #   VENDOR: untangle
-    # - ARCHITECTURE: arm64
-    #   TYPE: ec2/byol
-    #   VENDOR: untangle
-    # - ARCHITECTURE: arm64
-    #   TYPE: ec2/payg
-    #   VENDOR: untangle
+    - ARCHITECTURE: arm64
+      TYPE: qcow2
+      VENDOR: untangle
+    - ARCHITECTURE: arm64
+      TYPE: ec2/byol
+      VENDOR: untangle
+    - ARCHITECTURE: arm64
+      TYPE: ec2/payg
+      VENDOR: untangle
 
 before_install:
 - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
