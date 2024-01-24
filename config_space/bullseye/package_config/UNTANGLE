@@ -8,9 +8,9 @@ PACKAGES install-norec UNTANGLE_LINUX_CONFIG
 untangle-linux-config
 
 PACKAGES install-norec AMD64
-linux-image-5.10.0-14-untangle-amd64
+linux-image-5.10.0-27-untangle-amd64
 open-vm-tools
 
 PACKAGES install-norec ARM64
-linux-image-5.10.0-14-untangle-arm64
+linux-image-5.10.0-27-untangle-arm64
 
