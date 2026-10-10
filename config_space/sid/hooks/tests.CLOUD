@@ -1,19 +1,74 @@
 #!/bin/bash
 set -eux
 
+# The FAI runner invokes pytest from the build checkout; make the local
+# debian_cloud_images package importable by the system-test plugin.
+export PYTHONPATH="src${PYTHONPATH:+:${PYTHONPATH}}"
+
 # Cleanup mounts before running tests
 umount -l $FAI_ROOT/dev
 umount -l $FAI_ROOT/proc
 umount -l $FAI_ROOT/run
 umount -l $FAI_ROOT/sys
 
-exec pytest-3 \
+pytest_args=()
+if dpkg-query --admindir="$FAI_ROOT/var/lib/dpkg" \
+    --show --showformat='${db:Status-Abbrev}' untangle-gateway 2>/dev/null \
+    | grep -q '^ii'; then
+  # NGFW service accounts and application log directories are intentional;
+  # these assertions apply to generic Debian cloud images, not the appliance.
+  pytest_args+=(-k 'not test_passwd_name and not test_passwd_shell and not test_passwd_uid and not test_var_log')
+fi
+
+set +e
+pytest-3 \
   -c "${CLOUD_BUILD_SYSTEM_TESTS}/pytest.ini" \
   -p debian_cloud_images.test.pytest.mount \
   -vrxXs \
+  "${pytest_args[@]}" \
   --color=yes \
   --junit-xml "${CLOUD_BUILD_OUTPUT_DIR}/${CLOUD_BUILD_NAME}.build.junit.xml" \
   --mount-build-info "${CLOUD_BUILD_INFO}" \
   --mount-path "${FAI_ROOT}" \
   --rootdir "$CLOUD_BUILD_SYSTEM_TESTS" \
   "${CLOUD_BUILD_SYSTEM_TESTS}/image"
+pytest_status=$?
+set -e
+
+# FAI has reported the target mount busy during task_finish. Capture mount and
+# process references while still in the builder's mount namespace.
+echo "--- FAI target mount tree: ${FAI_ROOT} ---"
+findmnt -R "${FAI_ROOT}" || true
+if command -v fuser >/dev/null 2>&1; then
+  fuser -vm "${FAI_ROOT}" || true
+else
+  echo "fuser is unavailable in the builder image"
+  echo "--- Processes referencing the FAI target ---"
+  for proc in /proc/[0-9]*; do
+    pid=${proc##*/}
+    matched=
+    for ref in root cwd; do
+      target=$(readlink "${proc}/${ref}" 2>/dev/null) || continue
+      case "${target}" in
+        "${FAI_ROOT}"|"${FAI_ROOT}"/*|"${FAI_ROOT} (deleted)"|"${FAI_ROOT}"/*" (deleted)")
+          printf 'pid=%s %s=%s\n' "${pid}" "${ref}" "${target}"
+          matched=1
+          ;;
+      esac
+    done
+    for fd in "${proc}"/fd/*; do
+      target=$(readlink "${fd}" 2>/dev/null) || continue
+      case "${target}" in
+        "${FAI_ROOT}"|"${FAI_ROOT}"/*|"${FAI_ROOT} (deleted)"|"${FAI_ROOT}"/*" (deleted)")
+          printf 'pid=%s fd=%s target=%s\n' "${pid}" "${fd##*/}" "${target}"
+          matched=1
+          ;;
+      esac
+    done
+    if [[ -n ${matched} ]]; then
+      ps -p "${pid}" -o pid=,ppid=,stat=,args= 2>/dev/null || true
+    fi
+  done
+fi
+
+exit "$pytest_status"

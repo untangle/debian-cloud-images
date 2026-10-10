@@ -7,6 +7,11 @@ if ifclass DISABLE_IPV6; then
     ainsl -av /etc/sysctl.d/70-disable-ipv6.conf 'net.ipv6.conf.lo.disable_ipv6 = 0'
 fi
 $ROOTCMD shadowconfig on
-sed -i -e 's/^#PasswordAuthentication yes/PasswordAuthentication no/' $target/etc/ssh/sshd_config
-sed -i -e 's/^PermitRootLogin .*/PermitRootLogin without-password/' $target/etc/ssh/sshd_config
+if ifclass UNTANGLE; then
+    # untangle-system-config enables root login; preserve the appliance policy.
+    :
+else
+    sed -i -e 's/^#PasswordAuthentication yes/PasswordAuthentication no/' $target/etc/ssh/sshd_config
+    sed -i -e 's/^PermitRootLogin .*/PermitRootLogin without-password/' $target/etc/ssh/sshd_config
+fi
 ainsl /etc/ssh/sshd_config 'ClientAliveInterval 120'

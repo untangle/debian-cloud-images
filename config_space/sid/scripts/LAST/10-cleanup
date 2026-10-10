@@ -1,5 +1,13 @@
 #! /bin/bash
 
+# CLOUD installs netplan.io and libnss-resolve for generic images. Purge the
+# generic cloud networking/time stack after all package lists have been
+# processed, so the Trixie UNTANGLE image finishes with dnsmasq/ifupdown/NTPsec.
+if ifclass TRIXIE && ifclass UNTANGLE; then
+    chroot "$target" apt-get purge -y \
+        chrony netplan.io libnss-resolve systemd-resolved || exit 1
+fi
+
 rm -f $target/etc/mailname \
       $target/etc/machine-id \
       $target/etc/apt/sources.list.d/localdebs.list \
@@ -11,14 +19,40 @@ rm -f $target/etc/mailname \
       $target/var/log/dpkg.log \
       $target/var/log/install_packages.list
 
+# Match Bullseye's final cloud-image policy: keep package repositories out of
+# the shipped image. These sources are available during the build, but are
+# removed from the finished Trixie CLOUD image.
+if ifclass TRIXIE && ifclass CLOUD; then
+    rm -f "$target/etc/apt/sources.list" \
+          "$target/etc/apt/sources.list.d/backports.list" \
+          "$target/etc/apt/sources.list.d/untangle.list"
+fi
+
+# The appliance lets resolvconf/dnsmasq create the runtime resolver file.
+# Do not ship the builder's resolver file when systemd-resolved is omitted.
+if ifclass TRIXIE && ifclass UNTANGLE; then
+    if [ ! -L "$target/etc/resolv.conf" ]; then
+        rm -f "$target/etc/resolv.conf"
+    fi
+fi
+
 rm -rf $target/var/cache/apt/*
 rm -rf $target/var/lib/apt/lists/*
 rm -rf $target/var/log/fai
 rm -f $target/var/lib/dpkg/available*
 
+# Package post-install scripts and service setup can leave temporary files.
+# Cloud image system tests require these build-time directories to be empty.
+find "$target/tmp" -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +
+find "$target/var/tmp" -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +
+
 touch $target/etc/machine-id
 touch $target/var/lib/dpkg/available
 
-shred --remove $target/etc/ssh/ssh_host_*
+# Bullseye keeps the package-generated SSH host keys for the AWS AMI handoff.
+# Keep Trixie's behavior aligned, while retaining key cleanup for other Sid builds.
+if ! ifclass TRIXIE; then
+    shred --remove $target/etc/ssh/ssh_host_*
+fi
 
 fstrim $target
