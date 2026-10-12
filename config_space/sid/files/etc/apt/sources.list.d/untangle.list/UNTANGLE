@@ -1,0 +1,1 @@
+deb http://{%untangle_mirror%}/public/{%SUITE%} {%untangle_release%} main non-free

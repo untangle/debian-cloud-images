@@ -55,6 +55,24 @@ releases:
   baseid: '12'
   fai_classes: [BOOKWORM, BACKPORTS_LINUX, EXTRAS]
   arch_supports_linux_image_cloud: [amd64, arm64]
+- name: trixie
+  basename: trixie
+  id: '13'
+  baseid: '13'
+  fai_classes: [TRIXIE, EXTRAS]
+  arch_supports_linux_image_cloud: [amd64, arm64]
+- name: trixie-ngfw
+  id: trixie-ngfw
+  basename: trixie
+  baseid: '13'
+  fai_classes: [TRIXIE, UNTANGLE, UNTANGLE_VENDOR_UNTANGLE, UNTANGLE_LINUX_CONFIG]
+  arch_supports_linux_image_cloud: [amd64, arm64]
+- name: trixie-backports
+  basename: trixie-backports
+  id: 13-backports
+  baseid: '13'
+  fai_classes: [TRIXIE, BACKPORTS_LINUX, EXTRAS]
+  arch_supports_linux_image_cloud: [amd64, arm64]
 - name: sid
   basename: sid
   id: sid

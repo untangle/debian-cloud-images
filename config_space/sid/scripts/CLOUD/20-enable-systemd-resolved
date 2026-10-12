@@ -2,6 +2,23 @@
 
 set -euE
 
+if ifclass TRIXIE && ifclass UNTANGLE; then
+    # The Trixie appliance uses dnsmasq and ifupdown, not systemd-resolved.
+    # Keep NSS lookups on the dns backend after purging libnss-resolve.
+    sed -i -E '/^[[:space:]]*hosts:/ s/[[:space:]]+resolve[[:space:]]+\[!UNAVAIL=return\]//' \
+        "$target/etc/nsswitch.conf"
+    exit 0
+fi
+
 $ROOTCMD systemctl enable systemd-resolved.service
 
 ln -sf /run/systemd/resolve/resolv.conf $target/etc/resolv.conf
+
+if ifclass UNTANGLE; then
+    # dnsmasq owns the appliance DNS listener; avoid the resolved stub on :53.
+    install -d "$target/etc/systemd/resolved.conf.d"
+    cat > "$target/etc/systemd/resolved.conf.d/10-untangle-dnsmasq.conf" <<'EOF'
+[Resolve]
+DNSStubListener=no
+EOF
+fi

@@ -1,0 +1,6 @@
+#! /bin/bash
+
+echo "UNTANGLE CLEANUP"
+
+# A running FreeRADIUS process keeps the image filesystem busy during FAI cleanup.
+pkill -f freeradius || true

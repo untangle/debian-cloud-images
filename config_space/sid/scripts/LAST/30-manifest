@@ -5,7 +5,13 @@ import collections
 import json
 import logging
 import os
+import pathlib
 import subprocess
+import sys
+
+# The local FAI config and Python sources live in the build checkout. Do not
+# depend on the runner's working directory or PYTHONPATH being preserved.
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[4] / 'src'))
 
 from debian_cloud_images.utils import argparse_ext
 from debian_cloud_images.api.cdo.build import Build

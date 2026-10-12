@@ -13,6 +13,7 @@ unattended-upgrades
 
 # We're going with chrony as our default ntp client in light of
 # https://lwn.net/Articles/735211/
+PACKAGES install-norec EXTRAS
 chrony
 
 # Packages from important
