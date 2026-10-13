@@ -9,7 +9,7 @@ __spec__: importlib.machinery.ModuleSpec
 
 
 def open_text(resource: str, encoding: str = 'utf-8', errors: str = 'strict') -> typing.TextIO:
-    return importlib.resources.open_text(__spec__.name, resource, encoding, errors)
+    return importlib.resources.open_text(__spec__.name, resource, encoding=encoding, errors=errors)
 
 
 def path(resource: str) -> typing.ContextManager[pathlib.Path]:
