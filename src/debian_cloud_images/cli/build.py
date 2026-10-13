@@ -263,7 +263,6 @@ class BuildCommand(BaseCommand):
         self.env['CLOUD_BUILD_INFO'] = json.dumps(self.c.info)
         self.env['CLOUD_BUILD_NAME'] = name
         self.env['CLOUD_BUILD_OUTPUT_DIR'] = output.resolve()
-        self.env['CLOUD_BUILD_SYSTEM_TESTS'] = resources_path('system_tests').as_posix()
 
         output.mkdir(parents=True, exist_ok=True)
 
@@ -292,7 +291,9 @@ class BuildCommand(BaseCommand):
         )
 
     def __call__(self):
-        self.fai(not self.noop)
+        with resources_path('system_tests') as system_tests_path:
+            self.env['CLOUD_BUILD_SYSTEM_TESTS'] = system_tests_path.as_posix()
+            self.fai(not self.noop)
         digest = self.tar(not self.noop)
         self.manifest(not self.noop, (digest,))
 
