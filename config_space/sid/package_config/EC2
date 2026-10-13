@@ -1,6 +1,8 @@
 PACKAGES install-norec
 awscli
-python3-boto
 cloud-init
 cloud-guest-utils
 amazon-ec2-utils
+
+PACKAGES install-norec BULLSEYE BOOKWORM SID
+python3-boto
